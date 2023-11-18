@@ -1,0 +1,11 @@
+[run]
+branch = true
+omit = *constants*,*test_*,*__init__*,
+
+[report]
+ignore_errors = true
+fail_under = 90
+precision = 2
+show_missing = true
+skip_empty = true
+
