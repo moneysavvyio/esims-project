@@ -64,9 +64,9 @@ def upload_to_airtable(
         response = table.create({air_c.SIM: sim, air_c.ATTACHMENT: [file]})
         logger.info(
             "Uploaded %s",
-            response.get(air_c.FIELDS)[air_c.FILE][0][air_c.FILENAME],
+            response.get(air_c.FIELDS)[air_c.ATTACHMENT][0][air_c.FILENAME],
         )
         return True
-    except Exception as e:
-        print(f"Airtable upload error: {e}")
+    except Exception as exc:
+        logger.error("Airtable upload error: %s", exc)
         return False
