@@ -22,5 +22,4 @@ class AirTableConst:
 
     # keys
     FIELDS = "fields"
-    FILE = "file"
     FILENAME = "FILENAME"
