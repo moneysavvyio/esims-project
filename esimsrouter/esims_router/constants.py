@@ -3,6 +3,12 @@
 # pylint: disable=too-few-public-methods
 
 
+class RouterConst:
+    """RouterConst"""
+
+    ENTRIES = "ENTRIES"
+
+
 class DropBoxConst:
     """DropBox Defines"""
 

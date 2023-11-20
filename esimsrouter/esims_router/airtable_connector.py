@@ -19,23 +19,19 @@ class AirTableConnector:
         self.api = Api(os.getenv(air_c.AIRTABLE_API_KEY))
         self.table = self.api.table(self.base_id, self.table_name)
 
-    def load_attachments(self, sim: str, url: str) -> None:
-        """Load object in URL to AirTable
+    def load_attachments(self, sim: str, urls: list) -> None:
+        """Load objects in URLs list to AirTable
 
         Args:
             sim (str): Sim Provider.
-            url (str): URL of object to be loaded.
+            urls (list): URLs of objects to be loaded.
         """
         try:
-            code = attachment(url)
-            response = self.table.create(
-                {air_c.SIM: sim, air_c.ATTACHMENT: [code]}
-            )
-            logger.info(
-                "Uploaded: %s",
-                response.get(air_c.FIELDS)[air_c.ATTACHMENT][0][
-                    air_c.FILENAME
-                ],
-            )
+            records = [
+                {air_c.SIM: sim, air_c.ATTACHMENT: [attachment(url)]}
+                for url in urls
+            ]
+            response = self.table.batch_create(records)
+            logger.info("Uploaded to AirTable: %s : %s", sim, len(response))
         except Exception as exc:
             logger.error("Airtable upload error: %s", exc)

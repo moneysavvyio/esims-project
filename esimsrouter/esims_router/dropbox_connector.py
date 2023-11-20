@@ -94,6 +94,7 @@ class DropboxConnector:
         """
         delete_args = [DeleteArg(path) for path in entries]
         deleted = self.dbx.files_delete_batch(delete_args)
+        logger.info("Deleted Files Initiated: %s", len(delete_args))
         return deleted.get_async_job_id()
 
     @handle_dpx_error

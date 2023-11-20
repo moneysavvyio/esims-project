@@ -1,72 +1,68 @@
-"""Dropbox-AirTable Connector"""
+"""Main Service Driver"""
 
+import json
 import os
+import time
 
-from dropbox import Dropbox
-from dropbox.exceptions import AuthError
-from pyairtable import Api
-from pyairtable.utils import attachment
 
-from esims_router.constants import (
-    DropBoxConst as dbx_c,
-    AirTableConst as air_c,
-)
 from esims_router.logger import logger
-
-# Dropbox and Airtable credentials
-DROPBOX_TOKEN = os.getenv(dbx_c.DROPBOX_TOKEN)
-AIRTABLE_API_KEY = os.getenv(dbx_c.AIRTABLE_API_KEY)
-AIRTABLE_BASE_ID = os.getenv(dbx_c.AIRTABLE_BASE_ID)
-AIRTABLE_TABLE_NAME = os.getenv(dbx_c.AIRTABLE_TABLE_NAME)
+from esims_router.constants import RouterConst as r_c
+from esims_router.dropbox_connector import DropboxConnector
+from esims_router.s3_connector import S3Connector
+from esims_router.airtable_connector import AirTableConnector
 
 
-def download_file_from_dropbox(dropbox_token: str, file_path: str) -> bool:
-    """Download file from dropbox.
+def main() -> None:
+    """Main Service Driver"""
+    logger.info("Starting e-sims transport service")
+    # load connectors
+    dbx_connector = DropboxConnector()
+    s3_connector = S3Connector()
+    airtable_connector = AirTableConnector()
+    # load entries data
+    entries = json.loads(os.getenv(r_c.ENTRIES))
+    # iterate over esims
+    for sim, folder in entries.items():
+        path_list = dbx_connector.list_files(folder)
+        logger.info("Available Sims in Dropbox: %s : %s", sim, len(path_list))
+        if not path_list:
+            continue
+        # fetch dropbox files' content
+        objects = [dbx_connector.get_file(path) for path in path_list]
+        logger.info("Dropbox Objects Loaded: %s : %s", sim, len(objects))
+        # load objects to S3
+        urls = [
+            s3_connector.load_data(obj, key)
+            for obj, key in zip(objects, path_list)
+        ]
+        logger.info("S3 Objects Loaded: %s : %s", sim, len(urls))
+        # upload to AirTable
+        airtable_connector.load_attachments(sim, urls)
+        # delete from Dropbox
+        job_id = dbx_connector.delete_batch(path_list)
+        while not dbx_connector.check_delete_job_status(job_id):
+            time.sleep(3)
+            logger.info("Waiting for Dropbox delete job to finish...: %s", sim)
+        logger.info("Esims Uploaded Successfully: %s", sim)
+    logger.info("Finished main service driver")
+
+
+# pylint: disable=unused-argument
+def handler(event: dict, context: dict) -> None:
+    """Lambda Handler
 
     Args:
-        dropbox_token (str): Dropbox token.
-        file_path (str): download path.
+        event (dict): lambda trigger event.
+        context (dict): lambda event context.
 
-    Returns:
-        bool: download status.
+    Raises:
+        Exception: if main service failed.
     """
-    try:
-        dbx = Dropbox(dropbox_token)
-        metadata, response = dbx.files_download(path=file_path)
-        logger.info("File collected: %s", metadata.path_display)
-        with open(metadata.name, "wb") as f:
-            f.write(response.content)
-        return True
-    except AuthError as exc:
-        logger.error("Dropbox authentication error: %s", exc)
-        return False
-
-
-def upload_to_airtable(
-    api_key: str, base_id: str, table_name: str, url: str, sim: str
-) -> bool:
-    """Upload file to airTable.
-
-    Args:
-        api_key (str): AirTable API Key.
-        base_id (str): AirTable Base ID.
-        table_name (str): AirTable table name.
-        url (str): Local file path to upload.
-        sim (str): sim field.
-
-    Returns:
-        bool: If file uploaded.
-    """
-    try:
-        api = Api(api_key)
-        table = api.table(base_id, table_name)
-        file = attachment(url)
-        response = table.create({air_c.SIM: sim, air_c.ATTACHMENT: [file]})
-        logger.info(
-            "Uploaded %s",
-            response.get(air_c.FIELDS)[air_c.ATTACHMENT][0][air_c.FILENAME],
-        )
-        return True
-    except Exception as exc:
-        logger.error("Airtable upload error: %s", exc)
-        return False
+    while True:
+        try:
+            main()
+        except Exception as exc:
+            logger.error("Main Service Driver Error: %s", exc)
+            raise exc
+        logger.info("Waiting for next iteration...")
+        time.sleep(300)
