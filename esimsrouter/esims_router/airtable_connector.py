@@ -1,6 +1,8 @@
 """AirTable Connector to load Attachments to AirTable"""
 
 import os
+from typing import Generator
+
 
 from pyairtable import Api
 from pyairtable.utils import attachment
@@ -20,7 +22,7 @@ class AirTableConnector:
         self.table = self.api.table(self.base_id, self.table_name)
 
     @staticmethod
-    def batch_records(records: list) -> list:
+    def batch_records(records: list) -> Generator:
         """Batch records to maximum of 10 records in batch
 
         Args:
