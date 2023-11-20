@@ -1,0 +1,4 @@
+# Add 'ROUTER' label to any change within the esimsrouter/** files within source dir
+ROUTER:
+  - esimsrouter/*
+  - esimsrouter/**/*

@@ -1,0 +1,34 @@
+name: Extract API Environment Variables
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        required: true
+        type: string
+        description: 'Deployment Stage'
+    outputs:
+      aws_region:
+        value: ${{ jobs.set-env.outputs.aws_region }}
+      resource_name:
+        value: ${{ jobs.set-env.outputs.resource_name }}
+      image_name:
+        value: ${{ jobs.set-env.outputs.image_name }}
+
+jobs:
+  set-env:
+    name: Set Environment Variables
+    environment: ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    outputs:
+      aws_region: ${{ steps.set-env.outputs.aws_region }}
+      resource_name: ${{ steps.set-env.outputs.resource_name }}
+      image_name: ${{ steps.set-env.outputs.image_name }}
+
+    steps:
+      - name: Set Environment Variables
+        id: set-env
+        run: |
+          echo aws_region='${{ vars.AWS_REGION }}' >> $GITHUB_OUTPUT
+          echo resource_name='${{ vars.LAMBDA_ROUTER_NAME }}' >> $GITHUB_OUTPUT
+          echo image_name='${{ vars.ECR_ROUTER_IMAGE_NAME }}' >> $GITHUB_OUTPUT

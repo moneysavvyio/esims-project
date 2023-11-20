@@ -1,0 +1,33 @@
+name: Savvy API Deploy Dev1
+
+on:
+  push:
+    paths:
+      - esimsrouter/**
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-env:
+    name: Set Environment Variables
+    uses: ./.github/workflows/env-esimsrouter.yml
+    with:
+      stage: dev1
+
+  dev-deploy:
+    name: Deploy API to Dev1
+    needs: set-env
+    uses: ./.github/workflows/deploy-lambda.yml
+    with:
+      stage: dev1
+      directory: api
+      aws_region: ${{ needs.set-env.outputs.aws_region }}
+      image_name: ${{ needs.set-env.outputs.image_name }}
+      resource_name: ${{ needs.set-env.outputs.resource_name }}
+      image_tag: ${{ github.run_number }}
+    secrets: inherit

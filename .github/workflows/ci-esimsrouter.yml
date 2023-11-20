@@ -1,0 +1,39 @@
+name: Esims Router CI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - esimsrouter/**
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - esimsrouter/**
+
+jobs:
+  run-black:
+    name: Run Black Checks
+    uses: ./.github/workflows/check-black.yml
+    with:
+      working-directory: esimsrouter
+
+  run-pylint:
+    name: Run Pylint Checks
+    uses: ./.github/workflows/check-pylint.yml
+    with:
+      working-directory: esimsrouter
+
+  run-bandit:
+    name: Run Bandit Checks
+    uses: ./.github/workflows/check-bandit.yml
+    with:
+      working-directory: esimsrouter
+
+  run-mypy:
+    name: Run MyPy Checks
+    uses: ./.github/workflows/check-mypy.yml
+    with:
+      working-directory: esimsrouter
+      code-directory: esims_router
