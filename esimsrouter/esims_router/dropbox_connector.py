@@ -33,7 +33,7 @@ def handle_dpx_error(func: Callable) -> Callable:
 
         Raises:
             ApiError: If API error occured.
-            AuthError: If authentication error occured.)
+            AuthError: If authentication error occured.
 
         Returns:
             object: Function result.
@@ -42,7 +42,7 @@ def handle_dpx_error(func: Callable) -> Callable:
             return func(*args, **kwargs)
         except (ApiError, AuthError) as err:
             logger.error("Dropbox API error: %s", err)
-        return None
+            raise err
 
     return inner
 

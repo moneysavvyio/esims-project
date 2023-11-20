@@ -1,12 +1,19 @@
 """Helper library to support logging"""
 
+import os
 import logging
 import sys
 
+DEBUG = os.getenv("DEBUG", "")
+
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
-logger.setLevel(logging.DEBUG)
-handler.setLevel(logging.DEBUG)
+if DEBUG == "TRUE":
+    logger.setLevel(logging.DEBUG)
+    handler.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
+    handler.setLevel(logging.INFO)
 formatter = logging.Formatter(
     "%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s"
 )

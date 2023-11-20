@@ -25,6 +25,9 @@ class AirTableConnector:
         Args:
             sim (str): Sim Provider.
             urls (list): URLs of objects to be loaded.
+
+        Raises:
+            Exception: if failed to connect to AirTable
         """
         try:
             records = [
@@ -35,3 +38,4 @@ class AirTableConnector:
             logger.info("Uploaded to AirTable: %s : %s", sim, len(response))
         except Exception as exc:
             logger.error("Airtable upload error: %s", exc)
+            raise exc
