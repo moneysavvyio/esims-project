@@ -1,0 +1,59 @@
+name: AWS Lambda Image Deploy
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        required: true
+        type: string
+        description: 'Deployment Stage'
+      directory:
+        required: true
+        type: string
+        description: 'Asset Directory Name'
+      aws_region:
+        required: true
+        type: string
+        description: 'AWS Region'
+      image_name:
+        required: true
+        type: string
+        description: 'Docker Image Name'
+      image_tag:
+        required: true
+        type: string
+        description: 'Docker Image Tag'
+      resource_name:
+        required: true
+        type: string
+        description: 'AWS Lambda fn Name.'
+    secrets:
+      AWS_ROLE:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+        
+jobs:
+  publish-image:
+    name: Publish Image to ECR
+    uses: ./.github/workflows/aws-ecr-publish.yml
+    with:
+      directory: ${{ inputs.directory }}
+      stage: ${{ inputs.stage }}
+      aws_region: ${{ inputs.aws_region }}
+      image_name: ${{ inputs.image_name }}
+      image_tag: ${{ inputs.image_tag }}
+    secrets: inherit
+    
+  update-lambda:
+    name: Update Lambda Function
+    needs: publish-image
+    uses: ./.github/workflows/aws-lambda-update.yml
+    with:
+      stage: ${{ inputs.stage }}
+      aws_region: ${{ inputs.aws_region }}
+      resource_name: ${{ inputs.resource_name }}
+      ecr_image_ref: ${{ needs.publish-image.outputs.ecr_image_ref }}
+    secrets: inherit

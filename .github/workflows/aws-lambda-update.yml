@@ -1,0 +1,50 @@
+name: Update AWS Lambda Fn
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        required: true
+        type: string
+        description: 'Deployment Stage'
+      aws_region:
+        required: true
+        type: string
+        description: 'AWS Region'
+      resource_name:
+        required: true
+        type: string
+        description: 'AWS Lambda fn Name.'
+      ecr_image_ref:
+        required: true
+        type: string
+        description: 'ECR Image Reference'
+    secrets:
+      AWS_ROLE:
+        required: true
+      AWS_SESSION_NAME:
+        required: true
+
+jobs:
+  update-lambda:
+    name: Update Lambda Function
+    environment: ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: ${{ secrets.AWS_SESSION_NAME }}
+          aws-region: ${{ inputs.aws_region }}
+      
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Update Lambda Function
+        env:
+          IMAGE_NAME: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ecr_image_ref }}
+        run: |
+          aws lambda update-function-code --function-name=${{ inputs.resource_name }} --image-uri=${{ env.IMAGE_NAME }}

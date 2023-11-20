@@ -1,0 +1,35 @@
+name: Pylint Check
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+        description: 'Working directory to run pylint checks on'
+        
+
+jobs:
+  pylint:
+    name: Run Pylint Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          cd ${{ github.workspace }}/${{ inputs.working-directory }}
+          pip install -r ./test-requirements.txt --no-deps
+          pip install pylint
+
+      - name: Run pylint checks
+        run: |
+          pylint --rcfile=${{ github.workspace }}/.pylintrc --recursive y  ${{ github.workspace }}/${{ inputs.working-directory }}

@@ -1,0 +1,87 @@
+name: Publish Image to AWS ECR
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        required: true
+        type: string
+        description: 'Deployment Stage'
+      directory:
+        required: true
+        type: string
+        description: 'Asset Directory Name'
+      aws_region:
+        required: true
+        type: string
+        description: 'AWS Region'
+      image_name:
+        required: true
+        type: string
+        description: 'Docker Image Name'
+      image_tag:
+        required: true
+        type: string
+        description: 'Docker Image Tag'
+    secrets:
+      AWS_ROLE:
+        required: true
+      AWS_SESSION_NAME:
+        required: true
+    outputs:
+      ecr_image_ref:
+        value: ${{ jobs.publish-image.outputs.image_ref }}
+
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish-image:
+    name: Publish Image to ECR
+    environment: ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.ecr-ref.outputs.image_ref }}
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: ${{ secrets.AWS_SESSION_NAME }}
+          aws-region: ${{ inputs.aws_region }}
+      
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Image
+        env:
+          IMAGE_NAME: ${{ inputs.image_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          docker build -t $IMAGE_NAME:$IMAGE_TAG -f ${{ inputs.directory }}/Dockerfile .
+
+      - name: Push Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+          docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$IMAGE_NAME:latest
+          docker push $ECR_REGISTRY/$IMAGE_NAME --all-tags
+
+      - name: Output ECR Image Reference
+        id: ecr-ref
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          echo image_ref='${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}' >> $GITHUB_OUTPUT

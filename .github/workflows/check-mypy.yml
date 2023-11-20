@@ -1,0 +1,43 @@
+name: MyPy Check
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+        description: 'Main working directory to run pytest and coverage checks on.'
+      code-directory:
+        required: true
+        type: string
+        description: 'Code sub-directory to run pytest and coverage checks on.'
+
+jobs:
+  mypy:
+    name: Run MyPy Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        env:
+          DIR: ${{ github.workspace }}/${{ inputs.working-directory }}
+        run: |
+          python -m pip install --upgrade pip
+          cd "$DIR"
+          pip install -r ./test-requirements.txt --no-deps
+          pip install mypy
+
+      - name: Run mypy checks
+        env:
+          DIR: ${{ github.workspace }}/${{ inputs.working-directory }}/${{ inputs.code-directory }}
+          CONFIG: ${{ github.workspace }}/mypy.ini
+        run: |
+          mypy --explicit-package-bases --install-types --non-interactive --config-file="$CONFIG" "$DIR"
