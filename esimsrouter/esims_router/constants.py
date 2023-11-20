@@ -38,7 +38,3 @@ class AirTableConst:
     # fields
     SIM = "SIM"
     ATTACHMENT = "Attachment"
-
-    # keys
-    FIELDS = "fields"
-    FILENAME = "FILENAME"
