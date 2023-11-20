@@ -28,7 +28,14 @@ class S3Connector:
         """
         self.s3.put_object(Bucket=self.bucket, Key=key, Body=data)
         logger.info("Data loaded to S3: %s", key)
-        return aws_c.OBJECT_URL.format(self.bucket, key)
+        return self.s3.generate_presigned_url(
+            ClientMethod=aws_c.CLIENT_METHOD,
+            Params={
+                aws_c.BUCKET: self.bucket,
+                aws_c.KEY: key,
+            },
+            ExpiresIn=600,
+        )
 
 
 class SQSConnector:

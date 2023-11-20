@@ -28,8 +28,10 @@ class AWSConst:
     S3 = "s3"
     SQS = "sqs"
 
-    # URL
-    OBJECT_URL = "https://{0}.s3.amazonaws.com/{1}"
+    # URL Generation
+    CLIENT_METHOD = "get_object"
+    BUCKET = "Bucket"
+    KEY = "Key"
 
 
 class AirTableConst:
