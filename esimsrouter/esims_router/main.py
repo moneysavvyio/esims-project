@@ -61,6 +61,7 @@ def handler(event: dict, context: dict) -> None:
     try:
         main()
         logger.info("Passing on to the next iteration...")
+        time.sleep(60)
         SQSConnector().publish({"invoke": "lambda"})
     except Exception as exc:
         logger.error("Main Service Driver Error: %s", exc)
