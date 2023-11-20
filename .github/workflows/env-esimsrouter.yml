@@ -1,4 +1,4 @@
-name: Extract API Environment Variables
+name: Extract Esims Router Environment Variables
 
 on:
   workflow_call:

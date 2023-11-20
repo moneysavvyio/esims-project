@@ -1,4 +1,4 @@
-name: Savvy API Deploy Dev1
+name: Esims Router Deploy Prod
 
 on:
   push:
@@ -17,15 +17,15 @@ jobs:
     name: Set Environment Variables
     uses: ./.github/workflows/env-esimsrouter.yml
     with:
-      stage: dev1
+      stage: prod
 
   dev-deploy:
-    name: Deploy API to Dev1
+    name: Deploy Esims Router to Prod
     needs: set-env
     uses: ./.github/workflows/deploy-lambda.yml
     with:
-      stage: dev1
-      directory: api
+      stage: prod
+      directory: esimsrouter
       aws_region: ${{ needs.set-env.outputs.aws_region }}
       image_name: ${{ needs.set-env.outputs.image_name }}
       resource_name: ${{ needs.set-env.outputs.resource_name }}
