@@ -13,6 +13,14 @@ class DropBoxConst:
     AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
 
+class S3Const:
+    """AWS S3 Defines"""
+
+    # Env Variables
+    AWS_BUCKET = "AWS_BUCKET"
+    S3 = "s3"
+
+
 class AirTableConst:
     """AirTable Defines"""
 
