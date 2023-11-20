@@ -8,9 +8,6 @@ class DropBoxConst:
 
     # Env Variables
     DROPBOX_TOKEN = "DROPBOX_TOKEN"
-    AIRTABLE_API_KEY = "AIRTABLE_API_KEY"
-    AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
-    AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
 
 class S3Const:
@@ -23,6 +20,11 @@ class S3Const:
 
 class AirTableConst:
     """AirTable Defines"""
+
+    # Env Variables
+    AIRTABLE_API_KEY = "AIRTABLE_API_KEY"
+    AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
+    AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
     # fields
     SIM = "SIM"
