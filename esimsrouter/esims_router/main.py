@@ -8,7 +8,7 @@ import time
 from esims_router.logger import logger
 from esims_router.constants import RouterConst as r_c
 from esims_router.dropbox_connector import DropboxConnector
-from esims_router.s3_connector import S3Connector
+from esims_router.aws_connector import S3Connector, SQSConnector
 from esims_router.airtable_connector import AirTableConnector
 
 
@@ -61,6 +61,7 @@ def handler(event: dict, context: dict) -> None:
     try:
         main()
         logger.info("Passing on to the next iteration...")
+        SQSConnector().publish({"invoke": "lambda"})
     except Exception as exc:
         logger.error("Main Service Driver Error: %s", exc)
         raise exc

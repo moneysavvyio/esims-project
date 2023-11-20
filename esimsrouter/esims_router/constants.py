@@ -16,12 +16,17 @@ class DropBoxConst:
     DROPBOX_TOKEN = "DROPBOX_TOKEN"  # nosec
 
 
-class S3Const:
+class AWSConst:
     """AWS S3 Defines"""
 
     # Env Variables
     AWS_BUCKET = "AWS_BUCKET"
+    QUEUE_NAME = "QUEUE_NAME"
+    QUEUE_HOST = "QUEUE_HOST"
+
+    # Services
     S3 = "s3"
+    SQS = "sqs"
 
     # URL
     OBJECT_URL = "https://{0}.s3.amazonaws.com/{1}"
