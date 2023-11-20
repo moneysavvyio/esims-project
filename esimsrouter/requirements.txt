@@ -6,6 +6,12 @@
 #
 annotated-types==0.6.0
     # via pydantic
+boto3==1.29.3
+    # via -r requirements.in
+botocore==1.32.3
+    # via
+    #   boto3
+    #   s3transfer
 certifi==2023.11.17
     # via requests
 charset-normalizer==3.3.2
@@ -16,6 +22,10 @@ idna==3.4
     # via requests
 inflection==0.5.1
     # via pyairtable
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 ply==3.11
     # via stone
 pyairtable==2.2.0
@@ -24,13 +34,18 @@ pydantic==2.5.1
     # via pyairtable
 pydantic-core==2.14.3
     # via pydantic
+python-dateutil==2.8.2
+    # via botocore
 requests==2.31.0
     # via
     #   dropbox
     #   pyairtable
+s3transfer==0.7.0
+    # via boto3
 six==1.16.0
     # via
     #   dropbox
+    #   python-dateutil
     #   stone
 stone==3.3.1
     # via dropbox
@@ -40,7 +55,8 @@ typing-extensions==4.8.0
     #   pyairtable
     #   pydantic
     #   pydantic-core
-urllib3==2.1.0
+urllib3==1.26.18
     # via
+    #   botocore
     #   pyairtable
     #   requests
