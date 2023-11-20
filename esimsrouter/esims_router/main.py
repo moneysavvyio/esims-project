@@ -58,11 +58,9 @@ def handler(event: dict, context: dict) -> None:
     Raises:
         Exception: if main service failed.
     """
-    while True:
-        try:
-            main()
-        except Exception as exc:
-            logger.error("Main Service Driver Error: %s", exc)
-            raise exc
-        logger.info("Waiting for next iteration...")
-        time.sleep(300)
+    try:
+        main()
+        logger.info("Passing on to the next iteration...")
+    except Exception as exc:
+        logger.error("Main Service Driver Error: %s", exc)
+        raise exc
