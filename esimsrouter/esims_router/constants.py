@@ -13,7 +13,7 @@ class DropBoxConst:
     """DropBox Defines"""
 
     # Env Variables
-    DROPBOX_TOKEN = "DROPBOX_TOKEN" # nosec
+    DROPBOX_TOKEN = "DROPBOX_TOKEN"  # nosec
 
 
 class S3Const:
@@ -31,7 +31,7 @@ class AirTableConst:
     """AirTable Defines"""
 
     # Env Variables
-    AIRTABLE_API_KEY = "AIRTABLE_API_KEY" # nosec
+    AIRTABLE_API_KEY = "AIRTABLE_API_KEY"  # nosec
     AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
     AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
