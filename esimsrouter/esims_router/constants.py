@@ -17,6 +17,9 @@ class S3Const:
     AWS_BUCKET = "AWS_BUCKET"
     S3 = "s3"
 
+    # URL
+    OBJECT_URL = "https://{0}.s3.amazonaws.com/{1}"
+
 
 class AirTableConst:
     """AirTable Defines"""
