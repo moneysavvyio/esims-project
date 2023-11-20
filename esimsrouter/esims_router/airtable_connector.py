@@ -19,6 +19,19 @@ class AirTableConnector:
         self.api = Api(os.getenv(air_c.AIRTABLE_API_KEY))
         self.table = self.api.table(self.base_id, self.table_name)
 
+    @staticmethod
+    def batch_records(records: list) -> list:
+        """Batch records to maximum of 10 records in batch
+
+        Args:
+            records (list): list of records to be batched
+
+        Yields:
+            list: list of batched records
+        """
+        for i in range(0, len(records), 10):
+            yield records[i : i + 10]
+
     def load_attachments(self, sim: str, urls: list) -> None:
         """Load objects in URLs list to AirTable
 
@@ -34,8 +47,11 @@ class AirTableConnector:
                 {air_c.SIM: sim, air_c.ATTACHMENT: [attachment(url)]}
                 for url in urls
             ]
-            response = self.table.batch_create(records)
-            logger.info("Uploaded to AirTable: %s : %s", sim, len(response))
+            for batch in self.batch_records(records):
+                response = self.table.batch_create(batch)
+                logger.info(
+                    "Uploaded to AirTable: %s : %s", sim, len(response)
+                )
         except Exception as exc:
             logger.error("Airtable upload error: %s", exc)
             raise exc
