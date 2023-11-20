@@ -8,5 +8,5 @@ setup(
         "local_scheme": "node-and-timestamp",
         "fallback_version": "0.1.0",
     },
-    packages=["dropbox_connector"],
+    packages=["esims_router"],
 )

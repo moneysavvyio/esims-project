@@ -7,11 +7,11 @@ from dropbox.exceptions import AuthError
 from pyairtable import Api
 from pyairtable.utils import attachment
 
-from dropbox_connector.constants import (
+from esims_router.constants import (
     DropBoxConst as dbx_c,
     AirTableConst as air_c,
 )
-from dropbox_connector.logger import logger
+from esims_router.logger import logger
 
 # Dropbox and Airtable credentials
 DROPBOX_TOKEN = os.getenv(dbx_c.DROPBOX_TOKEN)
