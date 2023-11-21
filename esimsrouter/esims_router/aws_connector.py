@@ -69,22 +69,3 @@ class SSMConnector:
             Type=aws_c.PARAMETER_TYPE,
             Overwrite=True,
         )
-
-    def get_state(self) -> bool:
-        """Get Lambda State parameter in SSM
-
-        Returns:
-            bool: Lambda State.
-        """
-        state = self.get_parameter(aws_c.STATE_KEY)
-        return state == aws_c.OFF
-
-    def set_state(self) -> None:
-        """Set Lambda State parameter in SSM"""
-        self.update_parameter(aws_c.STATE_KEY, aws_c.ON)
-        logger.info("Lambda Status Set.")
-
-    def reset_state(self) -> None:
-        """Reset Lambda State parameter in SSM"""
-        self.update_parameter(aws_c.STATE_KEY, aws_c.OFF)
-        logger.info("Lambda Status Reset.")

@@ -7,6 +7,11 @@ class RouterConst:
     """RouterConst"""
 
     ENTRIES = "ENTRIES"
+    STATE_KEY = "LAMBDA_STATE_KEY"
+
+    # Lambda states
+    ON = "ON"
+    OFF = "OFF"
 
 
 class DropBoxConst:
@@ -35,11 +40,6 @@ class AWSConst:
     PARAMETER = "Parameter"
     VALUE = "Value"
     PARAMETER_TYPE = "String"
-
-    # Lambda State
-    STATE_KEY = "LAMBDA_STATE_KEY"
-    ON = "ON"
-    OFF = "OFF"
 
 
 class AirTableConst:

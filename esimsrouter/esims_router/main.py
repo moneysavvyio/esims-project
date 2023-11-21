@@ -12,6 +12,34 @@ from esims_router.aws_connector import S3Connector, SSMConnector
 from esims_router.airtable_connector import AirTableConnector
 
 
+class LambdaState:
+    """Manage Lambda State"""
+
+    def __init__(self) -> None:
+        """Initialize LambdaState"""
+        self.ssm = SSMConnector()
+        self.state_key = os.getenv(r_c.STATE_KEY)
+
+    def get_state(self) -> bool:
+        """Get Lambda State parameter in SSM
+
+        Returns:
+            bool: Lambda State.
+        """
+        state = self.ssm.get_parameter(self.state_key)
+        return state == r_c.OFF
+
+    def set_state(self) -> None:
+        """Set Lambda State parameter in SSM"""
+        self.ssm.update_parameter(self.state_key, r_c.ON)
+        logger.info("Lambda Status Set.")
+
+    def reset_state(self) -> None:
+        """Reset Lambda State parameter in SSM"""
+        self.ssm.update_parameter(self.state_key, r_c.OFF)
+        logger.info("Lambda Status Reset.")
+
+
 def main() -> None:
     """Main Service Driver"""
     logger.info("Starting e-sims transport service")
@@ -58,12 +86,12 @@ def handler(event: dict, context: dict) -> None:
     Raises:
         Exception: if main service failed.
     """
-    ssm = SSMConnector()
-    if ssm.get_state():
+    state = LambdaState()
+    if state.get_state():
         try:
-            ssm.set_state()
+            state.set_state()
             main()
-            ssm.reset_state()
+            state.reset_state()
         except Exception as exc:
             logger.error("Main Service Driver Error: %s", exc)
             raise exc
