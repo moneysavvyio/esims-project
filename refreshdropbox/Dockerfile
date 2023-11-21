@@ -1,0 +1,19 @@
+FROM public.ecr.aws/lambda/python:3.8 as refresh-dropbox
+
+# Copy Resources to image
+ADD ./refreshdropbox ${LAMBDA_TASK_ROOT}/refreshdropbox
+
+# Set Working Directory
+WORKDIR ${LAMBDA_TASK_ROOT}/refreshdropbox
+
+# Install requirements
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m ensurepip
+RUN pip install -r requirements.txt --no-deps
+
+# Set Python Path
+ENV PYTHONPATH "${PYTHONPATH}:${LAMBDA_TASK_ROOT}/refreshdropbox"
+
+# Run lambda
+CMD ["refresh_dropbox.main.handler"]
+
