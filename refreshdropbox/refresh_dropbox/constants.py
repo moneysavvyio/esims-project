@@ -8,9 +8,9 @@ class RefreshConst:
 
     # Env Variables
     APP_KEY = "APP_KEY"
-    APP_SECRET = "APP_SECRET"
-    REFRESH_TOKEN = "REFRESH_TOKEN"
-    DROPBOX_TOKEN = "DROPBOX_TOKEN"
+    APP_SECRET = "APP_SECRET"  # nosec
+    REFRESH_TOKEN = "REFRESH_TOKEN"  # nosec
+    DROPBOX_TOKEN = "DROPBOX_TOKEN"  # nosec
 
 
 class RequestConst:
@@ -18,10 +18,10 @@ class RequestConst:
 
     REFRESH_URL = "https://api.dropbox.com/oauth2/token"
     CLIENT_ID = "client_id"
-    CLIENT_SECRET = "client_secret"
-    REFRESH_TOKEN = "refresh_token"
+    CLIENT_SECRET = "client_secret"  # nosec
+    REFRESH_TOKEN = "refresh_token"  # nosec
     GRANT_TYPE = "grant_type"
-    ACCESS_TOKEN = "access_token"
+    ACCESS_TOKEN = "access_token"  # nosec
 
 
 class AWSConst:
