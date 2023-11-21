@@ -1,9 +1,9 @@
-name: Esims Router Deploy Prod
+name: Refresh Dropbox Deploy Prod
 
 on:
   push:
     paths:
-      - esimsrouter/**
+      - refreshdropbox/**
     branches:
       - main
   workflow_dispatch:
@@ -15,17 +15,17 @@ permissions:
 jobs:
   set-env:
     name: Set Environment Variables
-    uses: ./.github/workflows/env-esimsrouter.yml
+    uses: ./.github/workflows/env-refreshdropbox.yml
     with:
       stage: prod
 
   prod-deploy:
-    name: Deploy Esims Router to Prod
+    name: Deploy Refresh Dropbox to Prod
     needs: set-env
     uses: ./.github/workflows/deploy-lambda.yml
     with:
       stage: prod
-      directory: esimsrouter
+      directory: refreshdropbox
       aws_region: ${{ needs.set-env.outputs.aws_region }}
       image_name: ${{ needs.set-env.outputs.image_name }}
       resource_name: ${{ needs.set-env.outputs.resource_name }}

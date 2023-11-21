@@ -1,0 +1,39 @@
+name: Refresh Dropbox CI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - refreshdropbox/**
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - refreshdropbox/**
+
+jobs:
+  run-black:
+    name: Run Black Checks
+    uses: ./.github/workflows/check-black.yml
+    with:
+      working-directory: refreshdropbox
+
+  run-pylint:
+    name: Run Pylint Checks
+    uses: ./.github/workflows/check-pylint.yml
+    with:
+      working-directory: refreshdropbox
+
+  run-bandit:
+    name: Run Bandit Checks
+    uses: ./.github/workflows/check-bandit.yml
+    with:
+      working-directory: refreshdropbox
+
+  run-mypy:
+    name: Run MyPy Checks
+    uses: ./.github/workflows/check-mypy.yml
+    with:
+      working-directory: refreshdropbox
+      code-directory: refresh_dropbox

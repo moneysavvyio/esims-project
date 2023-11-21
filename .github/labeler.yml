@@ -2,3 +2,8 @@
 ROUTER:
   - esimsrouter/*
   - esimsrouter/**/*
+
+# Add 'TOKEN' label to any change within the refreshdropbox/** files within source dir
+TOKEN:
+  - refreshdropbox/*
+  - refreshdropbox/**/*
