@@ -7,6 +7,7 @@ from typing import Generator
 from pyairtable import Api
 from pyairtable.utils import attachment
 
+from esims_router.aws_connector import SSMConnector as ssm
 from esims_router.constants import AirTableConst as air_c
 from esims_router.logger import logger
 
@@ -18,7 +19,7 @@ class AirTableConnector:
         """Initializes the AirTable Connector"""
         self.base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
         self.table_name = os.getenv(air_c.AIRTABLE_TABLE_NAME)
-        self.api = Api(os.getenv(air_c.AIRTABLE_API_KEY))
+        self.api = Api(ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY)))
         self.table = self.api.table(self.base_id, self.table_name)
 
     @staticmethod

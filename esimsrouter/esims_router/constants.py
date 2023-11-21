@@ -21,8 +21,6 @@ class AWSConst:
 
     # Env Variables
     AWS_BUCKET = "AWS_BUCKET"
-    QUEUE_NAME = "QUEUE_NAME"
-    QUEUE_HOST = "QUEUE_HOST"
 
     # Services
     S3 = "s3"
@@ -39,7 +37,7 @@ class AWSConst:
     PARAMETER_TYPE = "String"
 
     # Lambda State
-    STATE_KEY = "ESIMS_LAMBDA_STATE"
+    STATE_KEY = "LAMBDA_STATE_KEY"
     ON = "ON"
     OFF = "OFF"
 
