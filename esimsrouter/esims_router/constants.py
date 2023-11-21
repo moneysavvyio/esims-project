@@ -6,12 +6,17 @@
 class RouterConst:
     """RouterConst"""
 
+    # Env Variables
     ENTRIES = "ENTRIES"
     STATE_KEY = "LAMBDA_STATE_KEY"
 
     # Lambda states
     ON = "ON"
     OFF = "OFF"
+
+    # Table Names
+    CARRIERS_TABLE_NAME = "Carriers"
+    ATTACHMENT_TABLE_NAME = "E-Sims Linked"
 
 
 class DropBoxConst:
@@ -50,6 +55,11 @@ class AirTableConst:
     AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
     AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
-    # fields
+    # Attachment Table Fields
     SIM = "SIM"
     ATTACHMENT = "Attachments"
+
+    # Carrier Table Fields
+    FIELDS = "fields"
+    NAME = "Name"
+    ID = "Airtable Record ID"
