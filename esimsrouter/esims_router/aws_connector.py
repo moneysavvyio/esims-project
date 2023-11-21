@@ -81,10 +81,10 @@ class SSMConnector:
 
     def set_state(self) -> None:
         """Set Lambda State parameter in SSM"""
-        self.update_parameter(aws_c.AWS_BUCKET, aws_c.ON)
+        self.update_parameter(aws_c.STATE_KEY, aws_c.ON)
         logger.info("Lambda Status Set.")
 
     def reset_state(self) -> None:
         """Reset Lambda State parameter in SSM"""
-        self.update_parameter(aws_c.AWS_BUCKET, aws_c.OFF)
+        self.update_parameter(aws_c.STATE_KEY, aws_c.OFF)
         logger.info("Lambda Status Reset.")
