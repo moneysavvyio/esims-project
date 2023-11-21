@@ -1,6 +1,5 @@
 """Main Service Driver"""
 
-import json
 import os
 import time
 
@@ -40,39 +39,59 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
+def fetch_entries() -> dict:
+    """Fetch Entries from AirTable
+
+    Returns:
+        dict: Entries.
+            {id: folder}
+    """
+    connector = AirTableConnector(r_c.CARRIERS_TABLE_NAME)
+    entries = connector.fetch_records()
+    return {entry[0]: r_c.DBX_PATH.format(entry[1]) for entry in entries}
+
+
 def main() -> None:
     """Main Service Driver"""
     logger.info("Starting e-sims transport service")
+    entries = fetch_entries()
     # load connectors
     dbx_connector = DropboxConnector()
     s3_connector = S3Connector()
-    airtable_connector = AirTableConnector()
-    # load entries data
-    entries = json.loads(os.getenv(r_c.ENTRIES))
     # iterate over esims
     for sim, folder in entries.items():
+        carrier = folder.split("/")[-1]
+        logger.info("Processing: %s", carrier)
         path_list = dbx_connector.list_files(folder)
-        logger.info("Available Sims in Dropbox: %s : %s", sim, len(path_list))
+        logger.info("Available Sims %s", len(path_list))
         if not path_list:
             continue
+
         # fetch dropbox files' content
         objects = [dbx_connector.get_file(path) for path in path_list]
-        logger.info("Dropbox Objects Loaded: %s : %s", sim, len(objects))
+        logger.info("Fetched Sims: %s", len(objects))
+
         # load objects to S3
         urls = [
             s3_connector.load_data(obj, key)
             for obj, key in zip(objects, path_list)
         ]
-        logger.info("S3 Objects Loaded: %s : %s", sim, len(urls))
+        logger.info("S3 Loaded Sims: %s", len(urls))
+
         # upload to AirTable
-        airtable_connector.load_attachments(sim, urls)
+        AirTableConnector(r_c.ATTACHMENT_TABLE_NAME).load_attachments(
+            sim, urls
+        )
+        logger.info("Uploaded to AirTable: %s", carrier)
+
         # delete from Dropbox
         job_id = dbx_connector.delete_batch(path_list)
         while not dbx_connector.check_delete_job_status(job_id):
             time.sleep(3)
-            logger.info("Waiting for Dropbox delete job to finish...: %s", sim)
-        logger.info("Esims Uploaded Successfully: %s", sim)
-    logger.info("Finished main service driver")
+            logger.info(
+                "Waiting for Dropbox delete job to finish...: %s", carrier
+            )
+        logger.info("Esims Uploaded Successfully: %s", carrier)
 
 
 # pylint: disable=unused-argument
@@ -91,6 +110,7 @@ def handler(event: dict, context: dict) -> None:
         try:
             state.set_state()
             main()
+            logger.info("Finished main service driver")
             state.reset_state()
         except Exception as exc:
             logger.error("Main Service Driver Error: %s", exc)
@@ -98,3 +118,7 @@ def handler(event: dict, context: dict) -> None:
             raise exc
     else:
         logger.info("Esims Router already running. Skipping ...")
+
+
+if __name__ == "__main__":
+    main()

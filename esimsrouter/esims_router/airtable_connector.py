@@ -1,4 +1,4 @@
-"""AirTable Connector to load Attachments to AirTable"""
+"""AirTable Connector"""
 
 import os
 from typing import Generator
@@ -13,14 +13,34 @@ from esims_router.logger import logger
 
 
 class AirTableConnector:
-    """AirTable Connector to load Attachments to AirTable"""
+    """AirTable Connector"""
 
-    def __init__(self) -> None:
-        """Initializes the AirTable Connector"""
+    def __init__(self, table_name: str) -> None:
+        """Initializes the AirTable Connector
+
+        Args:
+            table_name (str): AirTable Table Name
+        """
         self.base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
-        self.table_name = os.getenv(air_c.AIRTABLE_TABLE_NAME)
+        self.table_name = table_name
         self.api = Api(ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY)))
         self.table = self.api.table(self.base_id, self.table_name)
+
+    def fetch_records(self) -> list:
+        """Fetch ID, Name from AirTable
+
+        Returns:
+            list: list of carriers
+                [(id, name)]
+        """
+        records = self.table.all()
+        return [
+            (
+                record.get(air_c.FIELDS)[air_c.ID],
+                record.get(air_c.FIELDS)[air_c.NAME],
+            )
+            for record in records
+        ]
 
     @staticmethod
     def batch_records(records: list) -> Generator:
