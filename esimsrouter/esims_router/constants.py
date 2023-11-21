@@ -52,4 +52,4 @@ class AirTableConst:
 
     # fields
     SIM = "SIM"
-    ATTACHMENT = "Attachment"
+    ATTACHMENT = "Attachments"
