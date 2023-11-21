@@ -10,10 +10,18 @@ class RefreshConst:
     APP_KEY = "APP_KEY"
     APP_SECRET = "APP_SECRET"
     REFRESH_TOKEN = "REFRESH_TOKEN"
+    DROPBOX_TOKEN = "DROPBOX_TOKEN"
 
-    # Request
+
+class RequestConst:
+    """Request Defines"""
+
     REFRESH_URL = "https://api.dropbox.com/oauth2/token"
-    GRANT_TYPE = "refresh_token"
+    CLIENT_ID = "client_id"
+    CLIENT_SECRET = "client_secret"
+    REFRESH_TOKEN = "refresh_token"
+    GRANT_TYPE = "grant_type"
+    ACCESS_TOKEN = "access_token"
 
 
 class AWSConst:
