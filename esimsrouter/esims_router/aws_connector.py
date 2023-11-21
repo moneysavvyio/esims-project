@@ -1,7 +1,6 @@
-"""AWS S3 Connector to load bytes objects to S3"""
+"""AWS Services Connectors"""
 
 import os
-import json
 import boto3
 
 from esims_router.constants import AWSConst as aws_c
@@ -38,24 +37,54 @@ class S3Connector:
         )
 
 
-class SQSConnector:
-    """SQS Connector"""
+class SSMConnector:
+    """AWS SSM Connector to load bytes objects to S3"""
 
     def __init__(self) -> None:
-        """Initiate a SQS connection"""
-        self.queue_name = os.getenv(aws_c.QUEUE_NAME)
-        self.host = os.getenv(aws_c.QUEUE_HOST)
-        self.queue_url = f"{self.host}/{self.queue_name}"
-        self.runtime = boto3.client(aws_c.SQS)
+        """Initialize SSMConnector"""
+        self.ssm = boto3.client(aws_c.SSM)
 
-    def publish(self, message: dict) -> None:
-        """Publish given message to the queue.
+    def get_parameter(self, key: str) -> str:
+        """Get parameter from SSM
 
         Args:
-            message (dict): message to be published.
+            key (str): key to get.
+
+        Returns:
+            str: parameter value.
         """
-        self.runtime.send_message(
-            QueueUrl=self.queue_url,
-            MessageBody=json.dumps(message),
+        response = self.ssm.get_parameter(Name=key, WithDecryption=True)
+        return response.get(aws_c.PARAMETER).get(aws_c.VALUE)
+
+    def update_parameter(self, key: str, value: str) -> None:
+        """Set parameter in SSM
+
+        Args:
+            key (str): key to set.
+            value (str): value to set.
+        """
+        self.ssm.put_parameter(
+            Name=key,
+            Value=value,
+            Type=aws_c.PARAMETER_TYPE,
+            Overwrite=True,
         )
-        logger.info("Published message to invoke Lambda.")
+
+    def get_state(self) -> bool:
+        """Get Lambda State parameter in SSM
+
+        Returns:
+            bool: Lambda State.
+        """
+        state = self.get_parameter(aws_c.STATE_KEY)
+        return state == aws_c.OFF
+
+    def set_state(self) -> None:
+        """Set Lambda State parameter in SSM"""
+        self.update_parameter(aws_c.AWS_BUCKET, aws_c.ON)
+        logger.info("Lambda Status Set.")
+
+    def reset_state(self) -> None:
+        """Reset Lambda State parameter in SSM"""
+        self.update_parameter(aws_c.AWS_BUCKET, aws_c.OFF)
+        logger.info("Lambda Status Reset.")

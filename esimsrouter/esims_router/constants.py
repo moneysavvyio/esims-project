@@ -26,12 +26,22 @@ class AWSConst:
 
     # Services
     S3 = "s3"
-    SQS = "sqs"
+    SSM = "ssm"
 
     # URL Generation
     CLIENT_METHOD = "get_object"
     BUCKET = "Bucket"
     KEY = "Key"
+
+    # SSM
+    PARAMETER = "Parameter"
+    VALUE = "Value"
+    PARAMETER_TYPE = "String"
+
+    # Lambda State
+    STATE_KEY = "ESIMS_LAMBDA_STATE"
+    ON = "ON"
+    OFF = "OFF"
 
 
 class AirTableConst:

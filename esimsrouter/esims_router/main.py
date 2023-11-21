@@ -8,7 +8,7 @@ import time
 from esims_router.logger import logger
 from esims_router.constants import RouterConst as r_c
 from esims_router.dropbox_connector import DropboxConnector
-from esims_router.aws_connector import S3Connector, SQSConnector
+from esims_router.aws_connector import S3Connector, SSMConnector
 from esims_router.airtable_connector import AirTableConnector
 
 
@@ -58,11 +58,14 @@ def handler(event: dict, context: dict) -> None:
     Raises:
         Exception: if main service failed.
     """
-    try:
-        main()
-        logger.info("Passing on to the next iteration...")
-        SQSConnector().publish({"invoke": "lambda"})
-        time.sleep(10)
-    except Exception as exc:
-        logger.error("Main Service Driver Error: %s", exc)
-        raise exc
+    ssm = SSMConnector()
+    if ssm.get_state():
+        try:
+            ssm.set_state()
+            main()
+            ssm.reset_state()
+        except Exception as exc:
+            logger.error("Main Service Driver Error: %s", exc)
+            raise exc
+    else:
+        logger.info("Esims Router already running. Skipping ...")
