@@ -94,6 +94,7 @@ def handler(event: dict, context: dict) -> None:
             state.reset_state()
         except Exception as exc:
             logger.error("Main Service Driver Error: %s", exc)
+            state.reset_state()
             raise exc
     else:
         logger.info("Esims Router already running. Skipping ...")

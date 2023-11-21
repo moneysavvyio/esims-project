@@ -47,7 +47,7 @@ class AirTableConnector:
         """
         try:
             records = [
-                {air_c.SIM: sim, air_c.ATTACHMENT: [attachment(url)]}
+                {air_c.SIM: [sim], air_c.ATTACHMENT: [attachment(url)]}
                 for url in urls
             ]
             for batch in self.batch_records(records):
