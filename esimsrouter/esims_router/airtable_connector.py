@@ -39,7 +39,7 @@ class AirTableConnector:
         """Load objects in URLs list to AirTable
 
         Args:
-            sim (str): Sim Provider.
+            sim (str): Sim Provider Id.
             urls (list): URLs of objects to be loaded.
 
         Raises:
@@ -47,7 +47,7 @@ class AirTableConnector:
         """
         try:
             records = [
-                {air_c.SIM: [sim], air_c.ATTACHMENT: [attachment(url)]}
+                {air_c.SIM: [int(sim)], air_c.ATTACHMENT: [attachment(url)]}
                 for url in urls
             ]
             for batch in self.batch_records(records):
