@@ -9,6 +9,7 @@ from dropbox import Dropbox
 from dropbox.exceptions import ApiError, AuthError
 from dropbox.files import DeleteArg
 
+from esims_router.aws_connector import SSMConnector as ssm
 from esims_router.constants import DropBoxConst as dbx_c
 from esims_router.logger import logger
 
@@ -52,7 +53,7 @@ class DropboxConnector:
 
     def __init__(self) -> None:
         """Initialize DropboxConnector."""
-        self.dbx = Dropbox(os.getenv(dbx_c.DROPBOX_TOKEN))
+        self.dbx = Dropbox(ssm().get_parameter(os.getenv(dbx_c.DROPBOX_TOKEN)))
 
     @handle_dpx_error
     def list_files(self, root_folder: str) -> list:
