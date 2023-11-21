@@ -18,6 +18,9 @@ class RouterConst:
     CARRIERS_TABLE_NAME = "Carriers"
     ATTACHMENT_TABLE_NAME = "E-Sims Linked"
 
+    # Root Folder
+    DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
+
 
 class DropBoxConst:
     """DropBox Defines"""

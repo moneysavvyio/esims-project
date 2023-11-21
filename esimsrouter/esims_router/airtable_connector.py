@@ -27,18 +27,18 @@ class AirTableConnector:
         self.table = self.api.table(self.base_id, self.table_name)
 
     def fetch_records(self) -> list:
-        """Fetch Carriers from AirTable
+        """Fetch ID, Name from AirTable
 
         Returns:
             list: list of carriers
+                [(id, name)]
         """
         records = self.table.all()
         return [
-            {
-                record.get(air_c.FIELDS)[air_c.ID]: record.get(air_c.FIELDS)[
-                    air_c.NAME
-                ]
-            }
+            (
+                record.get(air_c.FIELDS)[air_c.ID],
+                record.get(air_c.FIELDS)[air_c.NAME],
+            )
             for record in records
         ]
 
