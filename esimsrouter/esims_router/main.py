@@ -46,7 +46,7 @@ def fetch_entries() -> dict:
         dict: Entries.
             {id: folder}
     """
-    connector = AirTableConnector(r_c.CARRIERS_TABLE_NAME)
+    connector = AirTableConnector(os.getenv(r_c.CARRIERS_TABLE_NAME))
     entries = connector.fetch_records()
     return {entry[0]: r_c.DBX_PATH.format(entry[1]) for entry in entries}
 
@@ -79,9 +79,9 @@ def main() -> None:
         logger.info("S3 Loaded Sims: %s", len(urls))
 
         # upload to AirTable
-        AirTableConnector(r_c.ATTACHMENT_TABLE_NAME).load_attachments(
-            sim, urls
-        )
+        AirTableConnector(
+            os.getenv(r_c.ATTACHMENT_TABLE_NAME)
+        ).load_attachments(sim, urls)
         logger.info("Uploaded to AirTable: %s", carrier)
 
         # delete from Dropbox

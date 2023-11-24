@@ -15,8 +15,8 @@ class RouterConst:
     OFF = "OFF"
 
     # Table Names
-    CARRIERS_TABLE_NAME = "Carriers"
-    ATTACHMENT_TABLE_NAME = "E-Sims Linked"
+    CARRIERS_TABLE_NAME = "CARRIERS_TABLE_NAME"
+    ATTACHMENT_TABLE_NAME = "ATTACHMENT_TABLE_NAME"
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
