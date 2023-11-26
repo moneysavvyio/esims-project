@@ -2,7 +2,7 @@
 
 
 from esimslib.util import logger
-from esimslib.connectors import AirTableConnector
+from esimslib.connectors import AirTableConnector, DropboxConnector
 
 from ingest_esims.constants import IngestSimsConst as in_c
 
@@ -67,6 +67,19 @@ def consolidate_sim_provider(esims: list) -> dict:
     return esims_by_provider
 
 
+def load_data_to_dbx(esims: dict) -> None:
+    """Load QR Codes to Dropbox.
+
+    Args:
+        esims (dict): Consolidated esims.
+            {provider: [urls]}
+    """
+    dbx_connector = DropboxConnector()
+    for provider, urls in esims.items():
+        dbx_connector.write_files(in_c.DBX_PATH.format(provider), urls)
+        logger.info("Loaded Donated eSIMs for %s: %s", provider, len(urls))
+
+
 def main() -> None:
     """Main"""
     logger.info("Ingesting Donated eSIMs.")
@@ -74,8 +87,8 @@ def main() -> None:
     logger.info("New Donated eSIMs records: %s", len(esims))
     # TODO: Check if the image contains QR Codes.
     esims_by_provider = consolidate_sim_provider(esims)
-    for provider_name, urls in esims_by_provider.items():
-        logger.info("New Donated eSIMs for %s: %s", provider_name, len(urls))
+    load_data_to_dbx(esims_by_provider)
+    # TODO: Update status in AirTable
 
 
 if __name__ == "__main__":
