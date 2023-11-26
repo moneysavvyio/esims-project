@@ -26,18 +26,23 @@ class AirTableConnector:
         self.api = Api(ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY)))
         self.table = self.api.table(self.base_id, self.table_name)
 
-    def fetch_records(self) -> list:
-        """Fetch ID, Name from AirTable
+    def fetch_all(self, view: str = air_c.DEFAULT_VIEW) -> list:
+        """Fetch ID, Field's value from AirTable for all records
+
+        Args:
+            view (str): Target AirTable view.
+             defaults to "backend_service" (Default View)
+             if None refers to main table.
 
         Returns:
             list: list of carriers
-                [(id, name)]
+                [(id, fields)]
         """
-        records = self.table.all()
+        records = self.table.all(view=view)
         return [
             (
-                record.get(air_c.FIELDS)[air_c.ID],
-                record.get(air_c.FIELDS)[air_c.NAME],
+                record.get(air_c.ID),
+                record.get(air_c.FIELDS),
             )
             for record in records
         ]

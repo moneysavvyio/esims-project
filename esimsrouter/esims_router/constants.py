@@ -17,6 +17,7 @@ class RouterConst:
     # Table Names
     CARRIERS_TABLE_NAME = "CARRIERS_TABLE_NAME"
     ATTACHMENT_TABLE_NAME = "ATTACHMENT_TABLE_NAME"
+    FOLDER_FIELD = "Name"
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"

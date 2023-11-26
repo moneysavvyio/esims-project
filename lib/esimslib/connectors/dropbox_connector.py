@@ -1,6 +1,7 @@
 """Dropbox Connector to Fetch files."""
 
 import os
+import uuid
 from functools import wraps
 from typing import Callable
 
@@ -110,3 +111,15 @@ class DropboxConnector:
         """
         deleted = self.dbx.files_delete_batch_check(job_id)
         return deleted.is_complete()
+
+    @handle_dpx_error
+    def write_files(self, parent_folder: str, urls: list) -> None:
+        """Load QR Codes in urls to Dropbox.
+
+        Args:
+            parent_folder (str): dropbox file path.
+            urls (list): list of QR Codes urls.
+        """
+        for url in urls:
+            file_path = f"{parent_folder}/{uuid.uuid4().hex}.png"
+            self.dbx.files_save_url(file_path, url)

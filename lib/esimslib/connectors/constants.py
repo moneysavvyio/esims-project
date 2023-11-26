@@ -40,11 +40,11 @@ class AirTableConst:
     AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
     AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
+    # Table Variables
+    FIELDS = "fields"
+    ID = "id"
+    DEFAULT_VIEW = "backend_service"
+
     # Attachment Table Fields
     SIM = "eSIM Provider"
     ATTACHMENT = "Attachments"
-
-    # Carrier Table Fields
-    FIELDS = "fields"
-    NAME = "Name"
-    ID = "Airtable Record ID"
