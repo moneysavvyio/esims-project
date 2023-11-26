@@ -6,9 +6,9 @@
 #
 annotated-types==0.6.0
     # via pydantic
-boto3==1.29.3
-    # via -r requirements.in
-botocore==1.32.3
+boto3==1.29.6
+    # via esimslib
+botocore==1.32.6
     # via
     #   boto3
     #   s3transfer
@@ -17,8 +17,8 @@ certifi==2023.11.17
 charset-normalizer==3.3.2
     # via requests
 dropbox==11.36.2
-    # via -r requirements.in
-idna==3.4
+    # via esimslib
+idna==3.6
     # via requests
 inflection==0.5.1
     # via pyairtable
@@ -29,10 +29,10 @@ jmespath==1.0.1
 ply==3.11
     # via stone
 pyairtable==2.2.0
-    # via -r requirements.in
-pydantic==2.5.1
+    # via esimslib
+pydantic==2.5.2
     # via pyairtable
-pydantic-core==2.14.3
+pydantic-core==2.14.5
     # via pydantic
 python-dateutil==2.8.2
     # via botocore
