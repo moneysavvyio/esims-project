@@ -59,7 +59,7 @@ class AirTableConst:
     AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
 
     # Attachment Table Fields
-    SIM = "SIM"
+    SIM = "eSIM Provider"
     ATTACHMENT = "Attachments"
 
     # Carrier Table Fields
