@@ -4,6 +4,8 @@
 #
 #    pip-compile --no-emit-index-url --output-file=requirements.txt requirements.in
 #
+-e file:../lib
+    # via -r requirements.in
 annotated-types==0.6.0
     # via pydantic
 boto3==1.29.6
