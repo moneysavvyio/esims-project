@@ -1,7 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.8 as esims-router
 
 # Copy Resources to image
+RUN mkdir ${LAMBDA_TASK_ROOT}/lib
 ADD ./esimsrouter ${LAMBDA_TASK_ROOT}/esimsrouter
+COPY ./lib ${LAMBDA_TASK_ROOT}/lib
 
 # Set Working Directory
 WORKDIR ${LAMBDA_TASK_ROOT}/esimsrouter
