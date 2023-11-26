@@ -9,9 +9,9 @@ from dropbox import Dropbox
 from dropbox.exceptions import ApiError, AuthError
 from dropbox.files import DeleteArg
 
-from esims_router.aws_connector import SSMConnector as ssm
-from esims_router.constants import DropBoxConst as dbx_c
-from esims_router.logger import logger
+from esimslib.connectors.aws_connector import SSMConnector as ssm
+from esimslib.connectors.constants import DropBoxConst as dbx_c
+from esimslib.util.logger import logger
 
 
 def handle_dpx_error(func: Callable) -> Callable:

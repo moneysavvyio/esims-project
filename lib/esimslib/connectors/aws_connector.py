@@ -3,8 +3,8 @@
 import os
 import boto3
 
-from esims_router.constants import AWSConst as aws_c
-from esims_router.logger import logger
+from esimslib.connectors.constants import AWSConst as aws_c
+from esimslib.util.logger import logger
 
 
 class S3Connector:
@@ -56,16 +56,20 @@ class SSMConnector:
         response = self.ssm.get_parameter(Name=key, WithDecryption=True)
         return response.get(aws_c.PARAMETER).get(aws_c.VALUE)
 
-    def update_parameter(self, key: str, value: str) -> None:
+    def update_parameter(
+        self, key: str, value: str, secure: bool = False
+    ) -> None:
         """Set parameter in SSM
 
         Args:
             key (str): key to set.
             value (str): value to set.
+            secure (bool): Keeps parameter secure if set to True.
+                default: False.
         """
         self.ssm.put_parameter(
             Name=key,
             Value=value,
-            Type=aws_c.PARAMETER_TYPE,
+            Type=aws_c.SECURE_STRING_TYPE if secure else aws_c.STRING_TYPE,
             Overwrite=True,
         )

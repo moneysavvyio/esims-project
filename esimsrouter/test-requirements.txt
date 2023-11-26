@@ -4,17 +4,19 @@
 #
 #    pip-compile --no-emit-index-url --output-file=test-requirements.txt test-requirements.in
 #
+-e file:../lib
+    # via -r requirements.in
 -e file:.
     # via -r test-requirements.in
 annotated-types==0.6.0
     # via
     #   -c constraints.txt
     #   pydantic
-boto3==1.29.3
+boto3==1.29.6
     # via
     #   -c constraints.txt
-    #   -r requirements.in
-botocore==1.32.3
+    #   esimslib
+botocore==1.32.6
     # via
     #   -c constraints.txt
     #   boto3
@@ -30,8 +32,8 @@ charset-normalizer==3.3.2
 dropbox==11.36.2
     # via
     #   -c constraints.txt
-    #   -r requirements.in
-idna==3.4
+    #   esimslib
+idna==3.6
     # via
     #   -c constraints.txt
     #   requests
@@ -51,12 +53,12 @@ ply==3.11
 pyairtable==2.2.0
     # via
     #   -c constraints.txt
-    #   -r requirements.in
-pydantic==2.5.1
+    #   esimslib
+pydantic==2.5.2
     # via
     #   -c constraints.txt
     #   pyairtable
-pydantic-core==2.14.3
+pydantic-core==2.14.5
     # via
     #   -c constraints.txt
     #   pydantic

@@ -7,9 +7,9 @@ from typing import Generator
 from pyairtable import Api
 from pyairtable.utils import attachment
 
-from esims_router.aws_connector import SSMConnector as ssm
-from esims_router.constants import AirTableConst as air_c
-from esims_router.logger import logger
+from esimslib.connectors.aws_connector import SSMConnector as ssm
+from esimslib.connectors.constants import AirTableConst as air_c
+from esimslib.util.logger import logger
 
 
 class AirTableConnector:
