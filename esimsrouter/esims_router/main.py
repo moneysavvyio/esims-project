@@ -3,12 +3,14 @@
 import os
 import time
 
-
-from esims_router.logger import logger
+from esimslib.util import logger
+from esimslib.connectors import (
+    DropboxConnector,
+    S3Connector,
+    SSMConnector,
+    AirTableConnector,
+)
 from esims_router.constants import RouterConst as r_c
-from esims_router.dropbox_connector import DropboxConnector
-from esims_router.aws_connector import S3Connector, SSMConnector
-from esims_router.airtable_connector import AirTableConnector
 
 
 class LambdaState:
