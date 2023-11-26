@@ -49,7 +49,8 @@ def fetch_entries() -> dict:
             {id: folder}
     """
     connector = AirTableConnector(os.getenv(r_c.CARRIERS_TABLE_NAME))
-    entries = connector.fetch_records()
+    entries = connector.fetch_all()
+    entries = [(entry[0], entry[1][r_c.FOLDER_FIELD]) for entry in entries]
     return {entry[0]: r_c.DBX_PATH.format(entry[1]) for entry in entries}
 
 
