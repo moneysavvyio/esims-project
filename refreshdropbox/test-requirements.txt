@@ -4,13 +4,19 @@
 #
 #    pip-compile --no-emit-index-url --output-file=test-requirements.txt test-requirements.in
 #
+-e file:../lib
+    # via -r requirements.in
 -e file:.
     # via -r test-requirements.in
-boto3==1.29.4
+annotated-types==0.6.0
     # via
     #   -c constraints.txt
-    #   -r requirements.in
-botocore==1.32.4
+    #   pydantic
+boto3==1.29.6
+    # via
+    #   -c constraints.txt
+    #   esimslib
+botocore==1.32.6
     # via
     #   -c constraints.txt
     #   boto3
@@ -23,15 +29,39 @@ charset-normalizer==3.3.2
     # via
     #   -c constraints.txt
     #   requests
-idna==3.4
+dropbox==11.36.2
+    # via
+    #   -c constraints.txt
+    #   esimslib
+idna==3.6
     # via
     #   -c constraints.txt
     #   requests
+inflection==0.5.1
+    # via
+    #   -c constraints.txt
+    #   pyairtable
 jmespath==1.0.1
     # via
     #   -c constraints.txt
     #   boto3
     #   botocore
+ply==3.11
+    # via
+    #   -c constraints.txt
+    #   stone
+pyairtable==2.2.0
+    # via
+    #   -c constraints.txt
+    #   esimslib
+pydantic==2.5.2
+    # via
+    #   -c constraints.txt
+    #   pyairtable
+pydantic-core==2.14.5
+    # via
+    #   -c constraints.txt
+    #   pydantic
 python-dateutil==2.8.2
     # via
     #   -c constraints.txt
@@ -40,6 +70,8 @@ requests==2.31.0
     # via
     #   -c constraints.txt
     #   -r requirements.in
+    #   dropbox
+    #   pyairtable
 s3transfer==0.7.0
     # via
     #   -c constraints.txt
@@ -47,9 +79,23 @@ s3transfer==0.7.0
 six==1.16.0
     # via
     #   -c constraints.txt
+    #   dropbox
     #   python-dateutil
+    #   stone
+stone==3.3.1
+    # via
+    #   -c constraints.txt
+    #   dropbox
+typing-extensions==4.8.0
+    # via
+    #   -c constraints.txt
+    #   annotated-types
+    #   pyairtable
+    #   pydantic
+    #   pydantic-core
 urllib3==1.26.18
     # via
     #   -c constraints.txt
     #   botocore
+    #   pyairtable
     #   requests
