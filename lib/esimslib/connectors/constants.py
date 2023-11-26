@@ -28,7 +28,8 @@ class AWSConst:
     # SSM
     PARAMETER = "Parameter"
     VALUE = "Value"
-    PARAMETER_TYPE = "String"
+    SECURE_STRING_TYPE = "SecureString"
+    STRING_TYPE = "String"
 
 
 class AirTableConst:
