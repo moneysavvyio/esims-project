@@ -3,8 +3,9 @@
 import os
 import requests
 
-from refresh_dropbox.logger import logger
-from refresh_dropbox.aws_connector import SSMConnector
+from esimslib.util import logger
+from esimslib.connectors import SSMConnector
+
 from refresh_dropbox.constants import (
     RefreshConst as ref_c,
     RequestConst as req_c,
@@ -24,7 +25,7 @@ def main() -> None:
     response = requests.post(req_c.REFRESH_URL, data=data, timeout=60)
     access_token = response.json()[req_c.ACCESS_TOKEN]
     logger.info("Dropbox Token fetched.")
-    ssm.update_parameter(os.getenv(ref_c.DROPBOX_TOKEN), access_token)
+    ssm.update_parameter(os.getenv(ref_c.DROPBOX_TOKEN), access_token, True)
     logger.info("Dropbox Token updated.")
 
 

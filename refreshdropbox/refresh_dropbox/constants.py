@@ -22,15 +22,3 @@ class RequestConst:
     REFRESH_TOKEN = "refresh_token"  # nosec
     GRANT_TYPE = "grant_type"
     ACCESS_TOKEN = "access_token"  # nosec
-
-
-class AWSConst:
-    """AWS Defines"""
-
-    # Services
-    SSM = "ssm"
-
-    # SSM
-    PARAMETER = "Parameter"
-    VALUE = "Value"
-    PARAMETER_TYPE = "SecureString"
