@@ -6,10 +6,78 @@ from typing import Generator
 
 from pyairtable import Api
 from pyairtable.utils import attachment
+from pyairtable.orm import Model, fields
 
 from esimslib.connectors.aws_connector import SSMConnector as ssm
-from esimslib.connectors.constants import AirTableConst as air_c
+from esimslib.connectors.constants import (
+    AirTableConst as air_c,
+    ProvidersModelConst as prov_c,
+    DonationsModelConst as don_c,
+    AttachmentModelConst as att_c,
+)
 from esimslib.util.logger import logger
+
+# pylint: disable=too-few-public-methods
+
+
+class Providers(Model):
+    """eSIM Providers Model"""
+
+    name = fields.TextField(prov_c.NAME)
+
+    @classmethod
+    def fetch_all(cls) -> list:
+        """Fetch all ID, Names from table.
+
+        Returns:
+            list: list of providers records.
+        """
+        return cls.all(view=air_c.DEFAULT_VIEW)
+
+    class Meta:
+        """Config subClass"""
+
+        table_name = prov_c.TABLE_NAME
+        base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
+        api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
+
+
+class Donations(Model):
+    """eSIM Donations Model"""
+
+    esim_provider = fields.LinkField(don_c.ESIM_PROVIDER, Providers)
+    qr_codes = fields.AttachmentsField(don_c.QR_CODE)
+    in_use_flag = fields.SelectField(don_c.IN_USE_FLAG)
+
+    @classmethod
+    def fetch_all(cls) -> list:
+        """Fetch all new donations.
+
+        Returns:
+            list: list of donation records.
+        """
+        return cls.all(view=air_c.DEFAULT_VIEW)
+
+    class Meta:
+        """Config subClass"""
+
+        table_name = don_c.TABLE_NAME
+        base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
+        api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
+
+
+class Attachments(Model):
+    """E-SIMs Linked Model"""
+
+    esim_provider = fields.LinkField(att_c.ESIM_PROVIDER, Providers)
+    attachments = fields.AttachmentsField(att_c.ATTACHMENT)
+
+    class Meta:
+        """Config subClass"""
+
+        table_name = att_c.TABLE_NAME
+        base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
+        api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
 
 
 class AirTableConnector:

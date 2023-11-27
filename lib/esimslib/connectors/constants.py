@@ -48,3 +48,33 @@ class AirTableConst:
     # Attachment Table Fields
     SIM = "eSIM Provider"
     ATTACHMENT = "Attachments"
+
+
+class ProvidersModelConst:
+    """Providers Model Defines"""
+
+    TABLE_NAME = "eSIM Providers"
+
+    # Table Variables
+    NAME = "Name"
+
+
+class DonationsModelConst:
+    """Donations Model Defines"""
+
+    TABLE_NAME = "ESim Donations"
+
+    # Table Variables
+    ESIM_PROVIDER = "eSIM Provider"
+    QR_CODE = "QR Codes"
+    IN_USE_FLAG = "QR Code In Use"
+
+
+class AttachmentModelConst:
+    """Attachment Model Defines"""
+
+    TABLE_NAME = "E-SIMs Linked"
+
+    # Table Variables
+    ESIM_PROVIDER = "eSIM Provider"
+    ATTACHMENT = "Attachments"
