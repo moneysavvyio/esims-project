@@ -4,12 +4,11 @@ import os
 import time
 
 from esimslib.util import logger
+from esimslib.airtable import Providers, Attachments
 from esimslib.connectors import (
     DropboxConnector,
     S3Connector,
     SSMConnector,
-    Providers,
-    Attachments,
 )
 from esims_router.constants import RouterConst as r_c
 

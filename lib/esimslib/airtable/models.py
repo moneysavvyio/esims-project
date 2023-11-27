@@ -3,13 +3,11 @@
 import os
 from typing import Generator
 
-
-from pyairtable import Api
 from pyairtable.utils import attachment
 from pyairtable.orm import Model, fields
 
 from esimslib.connectors.aws_connector import SSMConnector as ssm
-from esimslib.connectors.constants import (
+from esimslib.airtable.constants import (
     AirTableConst as air_c,
     ProvidersModelConst as prov_c,
     DonationsModelConst as don_c,
@@ -116,39 +114,3 @@ class Attachments(Model):
         table_name = att_c.TABLE_NAME
         base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
         api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
-
-
-class AirTableConnector:
-    """AirTable Connector"""
-
-    def __init__(self, table_name: str) -> None:
-        """Initializes the AirTable Connector
-
-        Args:
-            table_name (str): AirTable Table Name
-        """
-        self.base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
-        self.table_name = table_name
-        self.api = Api(ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY)))
-        self.table = self.api.table(self.base_id, self.table_name)
-
-    def fetch_all(self, view: str = air_c.DEFAULT_VIEW) -> list:
-        """Fetch ID, Field's value from AirTable for all records
-
-        Args:
-            view (str): Target AirTable view.
-             defaults to "backend_service" (Default View)
-             if None refers to main table.
-
-        Returns:
-            list: list of carriers
-                [(id, fields)]
-        """
-        records = self.table.all(view=view)
-        return [
-            (
-                record.get(air_c.ID),
-                record.get(air_c.FIELDS),
-            )
-            for record in records
-        ]
