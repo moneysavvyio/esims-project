@@ -7,3 +7,13 @@ ROUTER:
 TOKEN:
   - refreshdropbox/*
   - refreshdropbox/**/*
+
+# Add 'LIB' label to any change within the lib/** files within source dir
+LIB:
+  - lib/*
+  - lib/**/*
+
+# Add 'INGEST' label to any change within the ingestesims/** files within source dir
+INGEST:
+  - ingestesims/*
+  - ingestesims/**/*
