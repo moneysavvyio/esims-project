@@ -8,7 +8,8 @@ from esimslib.connectors import (
     DropboxConnector,
     S3Connector,
     SSMConnector,
-    AirTableConnector,
+    Providers,
+    Attachments,
 )
 from esims_router.constants import RouterConst as r_c
 
@@ -41,32 +42,21 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
-def fetch_entries() -> dict:
-    """Fetch Entries from AirTable
-
-    Returns:
-        dict: Entries.
-            {id: folder}
-    """
-    connector = AirTableConnector(os.getenv(r_c.CARRIERS_TABLE_NAME))
-    entries = connector.fetch_all()
-    entries = [(entry[0], entry[1][r_c.FOLDER_FIELD]) for entry in entries]
-    return {entry[0]: r_c.DBX_PATH.format(entry[1]) for entry in entries}
-
-
 def main() -> None:
     """Main Service Driver"""
     logger.info("Starting e-sims transport service")
-    entries = fetch_entries()
+    records = Providers.fetch_all()
     # load connectors
     dbx_connector = DropboxConnector()
     s3_connector = S3Connector()
     # iterate over esims
-    for sim, folder in entries.items():
-        carrier = folder.split("/")[-1]
-        logger.info("Processing: %s", carrier)
+    for record in records:
+        logger.info("Processing: %s", record.name)
+
+        folder = r_c.DBX_PATH.format(record.name)
         path_list = dbx_connector.list_files(folder)
         logger.info("Available Sims %s", len(path_list))
+
         if not path_list:
             continue
 
@@ -82,19 +72,17 @@ def main() -> None:
         logger.info("S3 Loaded Sims: %s", len(urls))
 
         # upload to AirTable
-        AirTableConnector(
-            os.getenv(r_c.ATTACHMENT_TABLE_NAME)
-        ).load_attachments(sim, urls)
-        logger.info("Uploaded to AirTable: %s", carrier)
+        Attachments.load_attachments(record.id, urls)
+        logger.info("Uploaded to AirTable: %s", record.name)
 
         # delete from Dropbox
         job_id = dbx_connector.delete_batch(path_list)
         while not dbx_connector.check_delete_job_status(job_id):
             time.sleep(3)
             logger.info(
-                "Waiting for Dropbox delete job to finish...: %s", carrier
+                "Waiting for Dropbox delete job to finish...: %s", record.name
             )
-        logger.info("Esims Uploaded Successfully: %s", carrier)
+        logger.info("Esims Uploaded Successfully: %s", record.name)
 
 
 # pylint: disable=unused-argument

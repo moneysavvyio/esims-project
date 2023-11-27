@@ -70,7 +70,45 @@ class Attachments(Model):
     """E-SIMs Linked Model"""
 
     esim_provider = fields.LinkField(att_c.ESIM_PROVIDER, Providers)
-    attachments = fields.AttachmentsField(att_c.ATTACHMENT)
+    attachment = fields.AttachmentsField(att_c.ATTACHMENT)
+
+    @staticmethod
+    def batch_records(records: list) -> Generator:
+        """Batch records to maximum of 10 records in batch
+
+        Args:
+            records (list): list of records to be batched
+
+        Yields:
+            list: list of batched records
+        """
+        for i in range(0, len(records), 10):
+            yield records[i : i + 10]
+
+    @classmethod
+    def load_attachments(cls, sim: str, urls: list) -> None:
+        """Load objects in URLs to AirTable
+
+        Args:
+            sim (str): Sim Provider Id.
+            urls (list): URLs of objects to be loaded.
+
+        Raises:
+            Exception: if failed to connect to AirTable
+        """
+        records = [
+            cls(
+                esim_provider=[Providers(id=sim)],
+                attachment=[attachment(url=url)],
+            )
+            for url in urls
+        ]
+        try:
+            for batch in cls.batch_records(records):
+                cls.batch_save(batch)
+        except Exception as exc:
+            logger.error("Airtable upload error: %s", exc)
+            raise exc
 
     class Meta:
         """Config subClass"""
@@ -114,40 +152,3 @@ class AirTableConnector:
             )
             for record in records
         ]
-
-    @staticmethod
-    def batch_records(records: list) -> Generator:
-        """Batch records to maximum of 10 records in batch
-
-        Args:
-            records (list): list of records to be batched
-
-        Yields:
-            list: list of batched records
-        """
-        for i in range(0, len(records), 10):
-            yield records[i : i + 10]
-
-    def load_attachments(self, sim: str, urls: list) -> None:
-        """Load objects in URLs list to AirTable
-
-        Args:
-            sim (str): Sim Provider Id.
-            urls (list): URLs of objects to be loaded.
-
-        Raises:
-            Exception: if failed to connect to AirTable
-        """
-        try:
-            records = [
-                {air_c.SIM: [sim], air_c.ATTACHMENT: [attachment(url)]}
-                for url in urls
-            ]
-            for batch in self.batch_records(records):
-                response = self.table.batch_create(batch)
-                logger.info(
-                    "Uploaded to AirTable: %s : %s", sim, len(response)
-                )
-        except Exception as exc:
-            logger.error("Airtable upload error: %s", exc)
-            raise exc
