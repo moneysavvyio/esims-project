@@ -30,21 +30,3 @@ class AWSConst:
     VALUE = "Value"
     SECURE_STRING_TYPE = "SecureString"
     STRING_TYPE = "String"
-
-
-class AirTableConst:
-    """AirTable Defines"""
-
-    # Env Variables
-    AIRTABLE_API_KEY = "AIRTABLE_API_KEY"  # nosec
-    AIRTABLE_BASE_ID = "AIRTABLE_BASE_ID"
-    AIRTABLE_TABLE_NAME = "AIRTABLE_TABLE_NAME"
-
-    # Table Variables
-    FIELDS = "fields"
-    ID = "id"
-    DEFAULT_VIEW = "backend_service"
-
-    # Attachment Table Fields
-    SIM = "eSIM Provider"
-    ATTACHMENT = "Attachments"
