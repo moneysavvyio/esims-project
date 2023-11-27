@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - refreshdropbox/**
+      - lib/**
     branches:
       - main
   workflow_dispatch:

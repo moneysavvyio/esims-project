@@ -1,17 +1,15 @@
-name: Refresh Dropbox CI
+name: Esims Router CI
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - refreshdropbox/**
       - lib/**
     branches:
       - main
   pull_request:
     types: [opened, synchronize]
     paths:
-      - refreshdropbox/**
       - lib/**
 
 jobs:
@@ -19,23 +17,23 @@ jobs:
     name: Run Black Checks
     uses: ./.github/workflows/check-black.yml
     with:
-      working-directory: refreshdropbox
+      working-directory: lib
 
   run-pylint:
     name: Run Pylint Checks
     uses: ./.github/workflows/check-pylint.yml
     with:
-      working-directory: refreshdropbox
+      working-directory: lib
 
   run-bandit:
     name: Run Bandit Checks
     uses: ./.github/workflows/check-bandit.yml
     with:
-      working-directory: refreshdropbox
+      working-directory: lib
 
   run-mypy:
     name: Run MyPy Checks
     uses: ./.github/workflows/check-mypy.yml
     with:
-      working-directory: refreshdropbox
-      code-directory: refresh_dropbox
+      working-directory: lib
+      code-directory: esimslib

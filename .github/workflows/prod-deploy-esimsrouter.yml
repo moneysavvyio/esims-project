@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - esimsrouter/**
+      - lib/**
     branches:
       - main
   workflow_dispatch:
