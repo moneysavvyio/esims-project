@@ -5,12 +5,14 @@ on:
   push:
     paths:
       - esimsrouter/**
+      - lib/**
     branches:
       - main
   pull_request:
     types: [opened, synchronize]
     paths:
       - esimsrouter/**
+      - lib/**
 
 jobs:
   run-black:
