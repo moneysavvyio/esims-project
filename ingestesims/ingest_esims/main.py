@@ -7,6 +7,8 @@ from esimslib.airtable import Donations
 from ingest_esims.constants import IngestSimsConst as in_c
 from ingest_esims.qr_code_detector import QRCodeDetector
 
+# pylint: disable=expression-not-assigned
+
 
 def consolidate_by_provider(records: list) -> dict:
     """Consolidate all esims for the same provider.
@@ -28,17 +30,23 @@ def consolidate_by_provider(records: list) -> dict:
     return esims_by_provider
 
 
-def load_data_to_dbx(esims: dict) -> None:
+def load_data_to_dbx(esims: dict) -> int:
     """Load QR Codes to Dropbox.
 
     Args:
         esims (dict): Consolidated esims.
             {provider: [urls]}
+
+    Returns:
+        int: total count of QR Codes loaded
     """
+    total_count = 0
     dbx_connector = DropboxConnector()
     for provider, urls in esims.items():
         dbx_connector.write_files(in_c.DBX_PATH.format(provider), urls)
+        total_count += len(urls)
         logger.info("Loaded Donated eSIMs for %s: %s", provider, len(urls))
+    return total_count
 
 
 def check_qr_code(record: object) -> None:
@@ -79,8 +87,17 @@ def main() -> None:
     logger.info("Validated Donated eSIMs records: %s", len(valid_records))
 
     esims_by_provider = consolidate_by_provider(valid_records)
-    load_data_to_dbx(esims_by_provider)
-    # # TODO: Update status in AirTable
+    loaded = load_data_to_dbx(esims_by_provider)
+    logger.info("Loaded QR Codes to Dropbox: %s", loaded)
+
+    [record.set_in_use() for record in valid_records]
+    [
+        record.set_donor_error()
+        for record in records
+        if not record in valid_records
+    ]
+    Donations.batch_save(records)
+    logger.info("Donated eSIMs Ingested.")
 
 
 if __name__ == "__main__":

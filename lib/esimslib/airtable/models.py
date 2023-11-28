@@ -46,6 +46,7 @@ class Donations(Model):
     esim_provider = fields.LinkField(don_c.ESIM_PROVIDER, Providers)
     qr_codes = fields.AttachmentsField(don_c.QR_CODE)
     in_use_flag = fields.SelectField(don_c.IN_USE_FLAG)
+    donor_error = fields.CheckboxField(don_c.DONOR_ERROR)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -82,6 +83,14 @@ class Donations(Model):
         for attachment_ in self.qr_codes:
             urls.append(attachment_.get(don_c.URL))
         return urls
+
+    def set_in_use(self) -> None:
+        """Set in use Flag to Yes"""
+        self.in_use_flag = don_c.YES
+
+    def set_donor_error(self) -> None:
+        """Set Donor Error to True"""
+        self.donor_error = True
 
     class Meta:
         """Config subClass"""
