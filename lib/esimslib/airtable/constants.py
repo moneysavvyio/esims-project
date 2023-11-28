@@ -34,6 +34,12 @@ class DonationsModelConst:
     QR_CODE = "QR Codes"
     IN_USE_FLAG = "QR Code In Use"
 
+    # QR Codes Keys
+    TYPE = "type"
+    FILENAME = "filename"
+    URL = "url"
+    IMAGE = "image"
+
 
 class AttachmentModelConst:
     """Attachment Model Defines"""

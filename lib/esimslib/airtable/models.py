@@ -56,6 +56,33 @@ class Donations(Model):
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
 
+    def check_attachment_type(self) -> None:
+        """Check if attachment type is image."""
+        for attachment_ in self.qr_codes:
+            if not don_c.IMAGE in attachment_.get(don_c.TYPE):
+                self.qr_codes.remove(attachment_)
+
+    def remove_duplicate_files(self) -> None:
+        """Remove Duplicate file names"""
+        filenames = set()
+        for attachment_ in self.qr_codes:
+            filename = attachment_.get(don_c.FILENAME)
+            if not filename in filenames:
+                filenames.add(filename)
+            else:
+                self.qr_codes.remove(attachment_)
+
+    def extract_url(self) -> list:
+        """Extract URL from attachment.
+
+        Returns:
+            list: list of URLs.
+        """
+        urls = []
+        for attachment_ in self.qr_codes:
+            urls.append(attachment_.get(don_c.URL))
+        return urls
+
     class Meta:
         """Config subClass"""
 

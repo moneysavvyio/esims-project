@@ -1,70 +1,32 @@
 """Ingest Esims From AirTable to Dropbox"""
 
-
 from esimslib.util import logger
-from esimslib.connectors import AirTableConnector, DropboxConnector
+from esimslib.connectors import DropboxConnector
+from esimslib.airtable import Donations
 
 from ingest_esims.constants import IngestSimsConst as in_c
 
+# pylint: disable=expression-not-assigned
 
-def extract_unique_urls(attachments: list) -> list:
-    """Extract unique attachment urls per record.
+# def consolidate_sim_provider(esims: list) -> dict:
+#     """Consolidate all esims for the same provider.
 
-    Args:
-        attachments (list): list of attached QR codes per record.
+#     Args:
+#         esims (list): List of esims.
+#             [{folder_name}, {list of attachments}]
 
-    Returns:
-        list: list of attchment urls.
-    """
-    filenames = []
-    unique_urls = []
-    for attachment in attachments:
-        filename = attachment.get(in_c.FILE_NAME)
-        if not filename in filenames:
-            filenames.append(filename)
-            unique_urls.append(attachment.get(in_c.URL))
-    return unique_urls
+#     Returns:
+#         dict: Consolidated esims.
+#             {provider_name: [urls]}
 
-
-def fetch_new_esims() -> list:
-    """Fetch newly donated esims.
-
-    Returns:
-        list: List of esims.
-            [{folder_name, {list of attachments}}]
-    """
-    connector = AirTableConnector(in_c.TABLE_NAME)
-    entries = connector.fetch_all()
-    return [
-        {
-            in_c.TARGET_FOLDER: entry[1].get(in_c.TARGET_FOLDER)[0],
-            in_c.ATTACHMENTS: extract_unique_urls(
-                entry[1].get(in_c.ATTACHMENTS)
-            ),
-        }
-        for entry in entries
-    ]
-
-
-def consolidate_sim_provider(esims: list) -> dict:
-    """Consolidate all esims for the same provider.
-
-    Args:
-        esims (list): List of esims.
-            [{folder_name}, {list of attachments}]
-
-    Returns:
-        dict: Consolidated esims.
-            {provider_name: [urls]}
-
-    """
-    esims_by_provider = {}
-    for esim in esims:
-        provider_name = esim.get(in_c.TARGET_FOLDER)
-        if not provider_name in esims_by_provider:
-            esims_by_provider[provider_name] = []
-        esims_by_provider[provider_name].extend(esim.get(in_c.ATTACHMENTS))
-    return esims_by_provider
+#     """
+#     esims_by_provider = {}
+#     for esim in esims:
+#         provider_name = esim.get(in_c.TARGET_FOLDER)
+#         if not provider_name in esims_by_provider:
+#             esims_by_provider[provider_name] = []
+#         esims_by_provider[provider_name].extend(esim.get(in_c.ATTACHMENTS))
+#     return esims_by_provider
 
 
 def load_data_to_dbx(esims: dict) -> None:
@@ -80,15 +42,33 @@ def load_data_to_dbx(esims: dict) -> None:
         logger.info("Loaded Donated eSIMs for %s: %s", provider, len(urls))
 
 
+def validate_record(record: object) -> None:
+    """Validate Donation Record.
+    - Validate attachment is an image.
+    - Validate no duplicate file names.
+    - Validate images contain QR Code.
+
+    Args:
+        record (object): Donations record.
+    """
+    record.check_attachment_type()
+    record.remove_duplicate_files()
+
+
 def main() -> None:
     """Main"""
     logger.info("Ingesting Donated eSIMs.")
-    esims = fetch_new_esims()
-    logger.info("New Donated eSIMs records: %s", len(esims))
-    # TODO: Check if the image contains QR Codes.
-    esims_by_provider = consolidate_sim_provider(esims)
-    load_data_to_dbx(esims_by_provider)
-    # TODO: Update status in AirTable
+
+    records = Donations.fetch_all()
+    logger.info("Donated eSIMs records: %s", len(records))
+
+    [record.validate_record() for record in records]
+    print("")
+
+    # # TODO: Check if the image contains QR Codes.
+    # esims_by_provider = consolidate_sim_provider(esims)
+    # load_data_to_dbx(esims_by_provider)
+    # # TODO: Update status in AirTable
 
 
 if __name__ == "__main__":
