@@ -7,25 +7,25 @@ from esimslib.airtable import Donations
 from ingest_esims.constants import IngestSimsConst as in_c
 from ingest_esims.qr_code_detector import QRCodeDetector
 
-# def consolidate_sim_provider(esims: list) -> dict:
-#     """Consolidate all esims for the same provider.
 
-#     Args:
-#         esims (list): List of esims.
-#             [{folder_name}, {list of attachments}]
+def consolidate_by_provider(records: list) -> dict:
+    """Consolidate all esims for the same provider.
 
-#     Returns:
-#         dict: Consolidated esims.
-#             {provider_name: [urls]}
+    Args:
+        records (list): List of Donations Records.
 
-#     """
-#     esims_by_provider = {}
-#     for esim in esims:
-#         provider_name = esim.get(in_c.TARGET_FOLDER)
-#         if not provider_name in esims_by_provider:
-#             esims_by_provider[provider_name] = []
-#         esims_by_provider[provider_name].extend(esim.get(in_c.ATTACHMENTS))
-#     return esims_by_provider
+    Returns:
+        dict: Consolidated esims.
+            {provider_name: [urls]}
+
+    """
+    esims_by_provider = {}
+    for record in records:
+        provider_name = record.esim_provider[0].name
+        if not provider_name in esims_by_provider:
+            esims_by_provider[provider_name] = []
+        esims_by_provider[provider_name].extend(record.extract_urls())
+    return esims_by_provider
 
 
 def load_data_to_dbx(esims: dict) -> None:
@@ -78,8 +78,8 @@ def main() -> None:
     valid_records = [record for record in records if record.qr_codes]
     logger.info("Validated Donated eSIMs records: %s", len(valid_records))
 
-    # esims_by_provider = consolidate_sim_provider(esims)
-    # load_data_to_dbx(esims_by_provider)
+    esims_by_provider = consolidate_by_provider(valid_records)
+    load_data_to_dbx(esims_by_provider)
     # # TODO: Update status in AirTable
 
 

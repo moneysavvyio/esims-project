@@ -72,7 +72,7 @@ class Donations(Model):
             else:
                 self.qr_codes.remove(attachment_)
 
-    def extract_url(self) -> list:
+    def extract_urls(self) -> list:
         """Extract URL from attachment.
 
         Returns:
