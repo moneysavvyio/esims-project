@@ -5,8 +5,7 @@ from esimslib.connectors import DropboxConnector
 from esimslib.airtable import Donations
 
 from ingest_esims.constants import IngestSimsConst as in_c
-
-# pylint: disable=expression-not-assigned
+from ingest_esims.qr_code_detector import QRCodeDetector
 
 # def consolidate_sim_provider(esims: list) -> dict:
 #     """Consolidate all esims for the same provider.
@@ -42,6 +41,18 @@ def load_data_to_dbx(esims: dict) -> None:
         logger.info("Loaded Donated eSIMs for %s: %s", provider, len(urls))
 
 
+def check_qr_code(record: object) -> None:
+    """Check if the image contains QR Code.
+
+    Args:
+        record (object): Donations record.
+    """
+    for attachment_ in record.qr_codes:
+        detector = QRCodeDetector(attachment_.get(in_c.URL))
+        if not detector.detect():
+            record.qr_codes.remove(attachment_)
+
+
 def validate_record(record: object) -> None:
     """Validate Donation Record.
     - Validate attachment is an image.
@@ -53,6 +64,7 @@ def validate_record(record: object) -> None:
     """
     record.check_attachment_type()
     record.remove_duplicate_files()
+    check_qr_code(record)
 
 
 def main() -> None:
@@ -62,10 +74,10 @@ def main() -> None:
     records = Donations.fetch_all()
     logger.info("Donated eSIMs records: %s", len(records))
 
-    [record.validate_record() for record in records]
-    print("")
+    list(map(validate_record, records))
+    valid_records = [record for record in records if record.qr_codes]
+    logger.info("Validated Donated eSIMs records: %s", len(valid_records))
 
-    # # TODO: Check if the image contains QR Codes.
     # esims_by_provider = consolidate_sim_provider(esims)
     # load_data_to_dbx(esims_by_provider)
     # # TODO: Update status in AirTable

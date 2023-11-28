@@ -8,3 +8,6 @@ class IngestSimsConst:
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
+
+    # Qr Code Attachment Key
+    URL = "url"
