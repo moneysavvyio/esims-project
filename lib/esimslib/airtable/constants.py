@@ -33,6 +33,18 @@ class DonationsModelConst:
     ESIM_PROVIDER = "eSIM Provider"
     QR_CODE = "QR Codes"
     IN_USE_FLAG = "QR Code In Use"
+    DONOR_ERROR = "Donor Error"
+
+    # QR Codes Keys
+    TYPE = "type"
+    FILENAME = "filename"
+    URL = "url"
+
+    # Accepted Types
+    IMAGE = "image"
+
+    # Set Values
+    YES = "Yes"
 
 
 class AttachmentModelConst:
