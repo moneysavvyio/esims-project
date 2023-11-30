@@ -1,4 +1,4 @@
-name: Refresh Dropbox Deploy Prod
+name: Ingest eSIMs Deploy Prod
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Refresh Dropbox Environment Variables
+name: Ingest eSIMs Environment Variables
 
 on:
   workflow_call:
