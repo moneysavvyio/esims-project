@@ -21,7 +21,7 @@ jobs:
       stage: prod
 
   prod-deploy:
-    name: Deploy Refresh Dropbox to Prod
+    name: Deploy Ingest eSIMs to Prod
     needs: set-env
     uses: ./.github/workflows/deploy-lambda.yml
     with:
