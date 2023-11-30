@@ -1,0 +1,41 @@
+name: Ingest eSIMs CI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ingestesims/**
+      - lib/**
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - ingestesims/**
+      - lib/**
+
+jobs:
+  run-black:
+    name: Run Black Checks
+    uses: ./.github/workflows/check-black.yml
+    with:
+      working-directory: ingestesims
+
+  run-pylint:
+    name: Run Pylint Checks
+    uses: ./.github/workflows/check-pylint.yml
+    with:
+      working-directory: ingestesims
+
+  run-bandit:
+    name: Run Bandit Checks
+    uses: ./.github/workflows/check-bandit.yml
+    with:
+      working-directory: ingestesims
+
+  run-mypy:
+    name: Run MyPy Checks
+    uses: ./.github/workflows/check-mypy.yml
+    with:
+      working-directory: ingestesims
+      code-directory: ingest_esims
