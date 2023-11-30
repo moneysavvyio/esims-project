@@ -100,5 +100,23 @@ def main() -> None:
     logger.info("Donated eSIMs Ingested.")
 
 
+# pylint: disable=unused-argument
+def handler(event: dict, context: dict) -> None:
+    """Lambda Handler
+
+    Args:
+        event (dict): lambda trigger event.
+        context (dict): lambda event context.
+
+    Raises:
+        Exception: if main service failed.
+    """
+    try:
+        main()
+    except Exception as exc:
+        logger.error("Ingest eSIMs Router Error: %s", exc)
+        raise exc
+
+
 if __name__ == "__main__":
     main()
