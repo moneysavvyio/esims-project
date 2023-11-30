@@ -9,5 +9,14 @@ class IngestSimsConst:
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
 
-    # Qr Code Attachment Key
+
+class ValidateDonationConst:
+    """Validate Donation Defines"""
+
+    # QR Codes Keys
+    TYPE = "type"
+    FILENAME = "filename"
     URL = "url"
+
+    # Accepted Types
+    IMAGE = "image"

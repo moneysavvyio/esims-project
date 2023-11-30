@@ -5,9 +5,7 @@ from esimslib.connectors import DropboxConnector
 from esimslib.airtable import Donations
 
 from ingest_esims.constants import IngestSimsConst as in_c
-from ingest_esims.qr_code_detector import QRCodeDetector
-
-# pylint: disable=expression-not-assigned
+from ingest_esims.validate_donation import ValidateDonation
 
 
 def consolidate_by_provider(records: list) -> dict:
@@ -49,18 +47,6 @@ def load_data_to_dbx(esims: dict) -> int:
     return total_count
 
 
-def check_qr_code(record: object) -> None:
-    """Check if the image contains QR Code.
-
-    Args:
-        record (object): Donations record.
-    """
-    for attachment_ in record.qr_codes:
-        detector = QRCodeDetector(attachment_.get(in_c.URL))
-        if not detector.detect():
-            record.qr_codes.remove(attachment_)
-
-
 def validate_record(record: object) -> None:
     """Validate Donation Record.
     - Validate attachment is an image.
@@ -70,9 +56,10 @@ def validate_record(record: object) -> None:
     Args:
         record (object): Donations record.
     """
-    record.check_attachment_type()
-    record.remove_duplicate_files()
-    check_qr_code(record)
+    validator = ValidateDonation(record)
+    validator.validate_attachment_type()
+    validator.validate_duplicate_files()
+    validator.validate_qr_code()
 
 
 def main() -> None:
@@ -90,6 +77,7 @@ def main() -> None:
     loaded = load_data_to_dbx(esims_by_provider)
     logger.info("Loaded QR Codes to Dropbox: %s", loaded)
 
+    # pylint: disable=expression-not-assigned
     [record.set_in_use() for record in valid_records]
     [
         record.set_donor_error()

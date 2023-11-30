@@ -36,12 +36,7 @@ class DonationsModelConst:
     DONOR_ERROR = "Donor Error"
 
     # QR Codes Keys
-    TYPE = "type"
-    FILENAME = "filename"
     URL = "url"
-
-    # Accepted Types
-    IMAGE = "image"
 
     # Set Values
     YES = "Yes"
