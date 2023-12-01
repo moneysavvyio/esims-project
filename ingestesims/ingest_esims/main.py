@@ -1,5 +1,7 @@
 """Ingest Esims From AirTable to Dropbox"""
 
+from copy import deepcopy
+
 from esimslib.util import logger
 from esimslib.connectors import DropboxConnector
 from esimslib.airtable import Donations
@@ -62,11 +64,27 @@ def validate_record(record: object) -> None:
     validator.validate_qr_code()
 
 
+def update_donations_status(valid_records: list, server_records: list) -> None:
+    """Update donation record status after validation.
+
+    Args:
+        valid_records (list): List of valid donation records.
+        server_records (list): List of server donation records.
+    """
+    valid_ids = {record.id for record in valid_records}
+    for record in server_records:
+        if record.id in valid_ids:
+            record.set_in_use()
+        else:
+            record.set_donor_error()
+
+
 def main() -> None:
     """Main"""
     logger.info("Ingesting Donated eSIMs.")
 
-    records = Donations.fetch_all()
+    server_records = Donations.fetch_all()
+    records = deepcopy(server_records)
     logger.info("Donated eSIMs records: %s", len(records))
 
     list(map(validate_record, records))
@@ -77,14 +95,8 @@ def main() -> None:
     loaded = load_data_to_dbx(esims_by_provider)
     logger.info("Loaded QR Codes to Dropbox: %s", loaded)
 
-    # pylint: disable=expression-not-assigned
-    [record.set_in_use() for record in valid_records]
-    [
-        record.set_donor_error()
-        for record in records
-        if not record in valid_records
-    ]
-    Donations.batch_save(records)
+    update_donations_status(valid_records, server_records)
+    Donations.batch_save(server_records)
     logger.info("Donated eSIMs Ingested.")
 
 
