@@ -1,7 +1,6 @@
 """AirTable Connector"""
 
 import os
-from typing import Generator
 
 from pyairtable.utils import attachment
 from pyairtable.orm import Model, fields
