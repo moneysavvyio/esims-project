@@ -65,7 +65,7 @@ def load_data_to_airtable(valid_records: list) -> int:
             [
                 Attachments(
                     esim_provider=record.esim_provider,
-                    attachment=Attachments.set_attachment_field(url),
+                    attachment=Attachments.format_attachment_field(url),
                     donor=[record],
                 )
                 for url in urls
