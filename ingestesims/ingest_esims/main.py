@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from esimslib.util import logger
 from esimslib.connectors import DropboxConnector
-from esimslib.airtable import Donations
+from esimslib.airtable import Donations, Attachments
 
 from ingest_esims.constants import IngestSimsConst as in_c
 from ingest_esims.validate_donation import ValidateDonation
@@ -49,6 +49,32 @@ def load_data_to_dbx(esims: dict) -> int:
     return total_count
 
 
+def load_data_to_airtable(valid_records: list) -> int:
+    """Load QR Codes to AirTable.
+
+    Args:
+        valid_records (list): List of valid donation records.
+
+    Returns:
+        int: total count of QR Codes loaded
+    """
+    attachments = []
+    for record in valid_records:
+        urls = record.extract_urls()
+        attachments.extend(
+            [
+                Attachments(
+                    esim_provider=record.esim_provider,
+                    attachment=Attachments.set_attachment_field(url),
+                    donor=[record],
+                )
+                for url in urls
+            ]
+        )
+    Attachments.load_records(attachments)
+    return len(attachments)
+
+
 def validate_record(record: object) -> None:
     """Validate Donation Record.
     - Validate attachment is an image.
@@ -91,9 +117,8 @@ def main() -> None:
     valid_records = [record for record in records if record.qr_codes]
     logger.info("Validated Donated eSIMs records: %s", len(valid_records))
 
-    esims_by_provider = consolidate_by_provider(valid_records)
-    loaded = load_data_to_dbx(esims_by_provider)
-    logger.info("Loaded QR Codes to Dropbox: %s", loaded)
+    loaded = load_data_to_airtable(valid_records)
+    logger.info("Loaded QR Codes to AirTable (ESims Linked): %s", loaded)
 
     update_donations_status(valid_records, server_records)
     Donations.batch_save(server_records)

@@ -89,9 +89,10 @@ class Attachments(Model):
 
     esim_provider = fields.LinkField(att_c.ESIM_PROVIDER, Providers)
     attachment = fields.AttachmentsField(att_c.ATTACHMENT)
+    donor = fields.LinkField(att_c.DONOR, Donations)
 
     @staticmethod
-    def batch_records(records: list) -> Generator:
+    def _batch_records(records: list) -> Generator:
         """Batch records to maximum of 10 records in batch
 
         Args:
@@ -102,6 +103,23 @@ class Attachments(Model):
         """
         for i in range(0, len(records), 10):
             yield records[i : i + 10]
+
+    @classmethod
+    def load_records(cls, records: list) -> None:
+        """Load records to AirTable
+
+        Args:
+            records (list): list of records to be loaded.
+
+        Raises:
+            Exception: if failed to connect to AirTable
+        """
+        try:
+            for batch in cls._batch_records(records):
+                cls.batch_save(batch)
+        except Exception as exc:
+            logger.error("Airtable upload error: %s", exc)
+            raise exc
 
     @classmethod
     def load_attachments(cls, sim: str, urls: list) -> None:
@@ -121,12 +139,19 @@ class Attachments(Model):
             )
             for url in urls
         ]
-        try:
-            for batch in cls.batch_records(records):
-                cls.batch_save(batch)
-        except Exception as exc:
-            logger.error("Airtable upload error: %s", exc)
-            raise exc
+        cls.load_records(records)
+
+    @staticmethod
+    def set_attachment_field(url: str) -> list:
+        """Format attachment field
+
+        Args:
+            url (str): URL of object.
+
+        Returns:
+            list: attachment field.
+        """
+        return [attachment(url=url)]
 
     class Meta:
         """Config subClass"""
