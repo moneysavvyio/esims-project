@@ -1,7 +1,6 @@
 """AirTable Connector"""
 
 import os
-from typing import Generator
 
 from pyairtable.utils import attachment
 from pyairtable.orm import Model, fields
@@ -89,44 +88,47 @@ class Attachments(Model):
 
     esim_provider = fields.LinkField(att_c.ESIM_PROVIDER, Providers)
     attachment = fields.AttachmentsField(att_c.ATTACHMENT)
-
-    @staticmethod
-    def batch_records(records: list) -> Generator:
-        """Batch records to maximum of 10 records in batch
-
-        Args:
-            records (list): list of records to be batched
-
-        Yields:
-            list: list of batched records
-        """
-        for i in range(0, len(records), 10):
-            yield records[i : i + 10]
+    donor = fields.LinkField(att_c.DONOR, Donations)
 
     @classmethod
-    def load_attachments(cls, sim: str, urls: list) -> None:
-        """Load objects in URLs to AirTable
+    def load_records(cls, records: list) -> None:
+        """Load records to AirTable
 
         Args:
-            sim (str): Sim Provider Id.
-            urls (list): URLs of objects to be loaded.
+            records (list): list of records to be loaded.
 
         Raises:
             Exception: if failed to connect to AirTable
         """
-        records = [
-            cls(
-                esim_provider=[Providers(id=sim)],
-                attachment=[attachment(url=url)],
-            )
-            for url in urls
-        ]
         try:
-            for batch in cls.batch_records(records):
-                cls.batch_save(batch)
+            cls.batch_save(records)
         except Exception as exc:
             logger.error("Airtable upload error: %s", exc)
             raise exc
+
+    @staticmethod
+    def format_attachment_field(url: str) -> list:
+        """Format attachment field
+
+        Args:
+            url (str): URL of object.
+
+        Returns:
+            list: attachment field.
+        """
+        return [attachment(url=url)]
+
+    @staticmethod
+    def format_esim_provider_field(provider_id: str) -> list:
+        """Format esim provider field
+
+        Args:
+            provider_id (str): Sim Provider Id.
+
+        Returns:
+            list: esim provider field.
+        """
+        return [Providers(id=provider_id)]
 
     class Meta:
         """Config subClass"""

@@ -41,6 +41,23 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
+def load_data_to_airtable(provider_id: str, urls: list) -> None:
+    """Load data to AirTable
+
+    Args:
+        provider_id (str): Provider ID.
+        urls (list): List of QR Codes URLs.
+    """
+    attachments = [
+        Attachments(
+            esim_provider=Attachments.format_esim_provider_field(provider_id),
+            attachment=Attachments.format_attachment_field(url),
+        )
+        for url in urls
+    ]
+    Attachments.load_records(attachments)
+
+
 def main() -> None:
     """Main Service Driver"""
     logger.info("Starting e-sims transport service")
@@ -71,7 +88,7 @@ def main() -> None:
         logger.info("S3 Loaded Sims: %s", len(urls))
 
         # upload to AirTable
-        Attachments.load_attachments(record.id, urls)
+        load_data_to_airtable(record.id, urls)
         logger.info("Uploaded to AirTable: %s", record.name)
 
         # delete from Dropbox

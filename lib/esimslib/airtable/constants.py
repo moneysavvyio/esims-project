@@ -49,4 +49,5 @@ class AttachmentModelConst:
 
     # Table Variables
     ESIM_PROVIDER = "eSIM Provider"
+    DONOR = "Linked Donor"
     ATTACHMENT = "Attachments"
