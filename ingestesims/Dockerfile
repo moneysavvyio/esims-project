@@ -8,6 +8,13 @@ COPY ./lib ${LAMBDA_TASK_ROOT}/lib
 # Set Working Directory
 WORKDIR ${LAMBDA_TASK_ROOT}/ingestesims
 
+# Install dependencies
+RUN yum -y update \
+    && yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+    && yum makecache \
+    && yum -y install libzbar0
+
+
 # Install requirements
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m ensurepip

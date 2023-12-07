@@ -4,6 +4,8 @@ import requests
 import cv2
 import numpy as np
 
+from pyzbar.pyzbar import decode
+
 from esimslib.util.logger import logger
 
 # pylint: disable=no-member
@@ -41,6 +43,4 @@ class QRCodeDetector:
         Returns:
             bool: True if QR Codel is detected, False otherwise.
         """
-        detector = cv2.QRCodeDetector()
-        detected, _ = detector.detect(self._read_image())
-        return detected
+        return bool(decode(self._read_image()))
