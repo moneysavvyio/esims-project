@@ -13,27 +13,32 @@ class ValidateDonation:
         Args:
             record: Donation object.
         """
-        self.qr_codes = record.qr_codes
+        self.record = record
 
     def validate_attachment_type(self) -> None:
         """Check if attachment type is image."""
-        for attachment_ in self.qr_codes:
-            if not vd_c.IMAGE in attachment_.get(vd_c.TYPE):
-                self.qr_codes.remove(attachment_)
+        valid_qr_codes = []
+        for attachment_ in self.record.qr_codes:
+            if vd_c.IMAGE in attachment_.get(vd_c.TYPE):
+                valid_qr_codes.append(attachment_)
+        self.record.qr_codes = valid_qr_codes
 
     def validate_duplicate_files(self) -> None:
         """Remove Duplicate file names"""
         filenames = set()
-        for attachment_ in self.qr_codes:
+        valid_qr_codes = []
+        for attachment_ in self.record.qr_codes:
             filename = attachment_.get(vd_c.FILENAME)
             if not filename in filenames:
                 filenames.add(filename)
-            else:
-                self.qr_codes.remove(attachment_)
+                valid_qr_codes.append(attachment_)
+        self.record.qr_codes = valid_qr_codes
 
     def validate_qr_code(self) -> None:
         """Check if the image contains a QR Code."""
-        for attachment_ in self.qr_codes:
+        valid_qr_codes = []
+        for attachment_ in self.record.qr_codes:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
-            if not detector.detect():
-                self.qr_codes.remove(attachment_)
+            if detector.detect():
+                valid_qr_codes.append(attachment_)
+        self.record.qr_codes = valid_qr_codes
