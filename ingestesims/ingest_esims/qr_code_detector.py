@@ -4,7 +4,7 @@ import requests
 import cv2
 import numpy as np
 
-from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import decode, ZBarSymbol
 
 from esimslib.util.logger import logger
 
@@ -34,7 +34,7 @@ class QRCodeDetector:
             logger.error("Failed to read image: %s", exc)
             raise exc
         image = np.asarray(bytearray(response.content), dtype="uint8")
-        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        image = cv2.imdecode(image, cv2.IMREAD_GRAYSCALE)
         return image
 
     def detect(self) -> bool:
@@ -43,4 +43,15 @@ class QRCodeDetector:
         Returns:
             bool: True if QR Codel is detected, False otherwise.
         """
-        return bool(decode(self._read_image()))
+        _, image = cv2.threshold(
+            self._read_image(),
+            127,
+            255,
+            cv2.THRESH_OTSU,
+        )
+        return any(
+            (
+                bool(decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])),
+                bool(decode(image, symbols=[ZBarSymbol.QRCODE])),
+            )
+        )
