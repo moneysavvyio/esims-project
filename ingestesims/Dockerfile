@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.8 as refresh-dropbox
+FROM public.ecr.aws/lambda/python:3.8 as ingest-esims
 
 # Copy Resources to image
 RUN mkdir ${LAMBDA_TASK_ROOT}/lib
