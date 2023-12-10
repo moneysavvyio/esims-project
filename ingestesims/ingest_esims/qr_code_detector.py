@@ -37,7 +37,7 @@ class QRCodeDetector:
         image = cv2.imdecode(image, cv2.IMREAD_GRAYSCALE)
         return image
 
-    def detect(self) -> bool:
+    def _detect_fall_back(self) -> bool:
         """Detect QR Code
 
         Returns:
@@ -49,9 +49,14 @@ class QRCodeDetector:
             255,
             cv2.THRESH_OTSU,
         )
-        return any(
-            (
-                bool(decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])),
-                bool(decode(image, symbols=[ZBarSymbol.QRCODE])),
-            )
-        )
+        return bool(decode(image, symbols=[ZBarSymbol.QRCODE]))
+
+    def detect(self) -> bool:
+        """Detect QR Code
+
+        Returns:
+            bool: True if QR Codel is detected, False otherwise.
+        """
+        if bool(decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])):
+            return True
+        return self._detect_fall_back()
