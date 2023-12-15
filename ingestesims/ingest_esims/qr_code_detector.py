@@ -57,6 +57,10 @@ class QRCodeDetector:
         Returns:
             bool: True if QR Codel is detected, False otherwise.
         """
-        if bool(decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])):
-            return True
+        try:
+            if bool(decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])):
+                return True
+        except TypeError:
+            logger.warning("Failed to read image type: %s", self.url)
+            return False
         return self._detect_fall_back()
