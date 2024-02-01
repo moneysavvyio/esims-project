@@ -1,4 +1,4 @@
-name: Esims Router CI
+name: eSIMs Lib CI
 
 on:
   workflow_dispatch:
