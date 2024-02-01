@@ -67,8 +67,12 @@ class DropboxConnector:
         Returns:
             list: list of file paths.
         """
-        files = self.dbx.files_list_folder(root_folder)
-        return [entry.path_display for entry in files.entries]
+        try:
+            files = self.dbx.files_list_folder(root_folder)
+            return [entry.path_display for entry in files.entries]
+        except ApiError:
+            logger.warning("Folder Not Found: %s", root_folder)
+            return []
 
     @handle_dpx_error
     def get_file(self, file_path: str) -> bytes:
