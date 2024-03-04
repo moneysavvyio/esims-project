@@ -1,0 +1,47 @@
+{
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Wecom*"
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {
+          "type": "mrkdwn",
+          "text": "*Number:*\n<number>"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Usage:*\n<usage>%"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Start Date:*\nMar 10, 2015 (3 years, 5 months)"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Expiration Date:*\nMar 10, 2015 (3 years, 5 months)"
+        }
+      ]
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "emoji": true,
+            "text": "Extend (Doesn't work yet)"
+          },
+          "style": "primary",
+          "value": "click_me_123"
+        }
+      ]
+    }
+  ]
+}
