@@ -21,6 +21,7 @@ class Providers(Model):
     """eSIM Providers Model"""
 
     name = fields.TextField(prov_c.NAME)
+    qr_text = fields.TextField(prov_c.QR_TEXT)
 
     @classmethod
     def fetch_all(cls) -> list:
