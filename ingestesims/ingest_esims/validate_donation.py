@@ -14,18 +14,7 @@ class ValidateDonation:
             record: Donation object.
         """
         self.record = record
-        self._qr_text = self.record.esim_provider[0].qr_text
-
-    @property
-    def qr_text(self) -> str:
-        """Return QR Text.
-
-        Returns:
-            str: Provider standardt qr text.
-        """
-        if bool(self._qr_text):
-            return self._qr_text[0]
-        return ""
+        self.qr_text = self.record.esim_provider[0].qr_text or [""]
 
     def validate_attachment_type(self) -> None:
         """Check if attachment type is image."""
@@ -52,6 +41,6 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
             if detector.detect():
-                if self.qr_text in detector.qr_code:
+                if any(v in detector.qr_code for v in self.qr_text):
                     valid_qr_codes.append(attachment_)
         self.record.qr_codes = valid_qr_codes
