@@ -22,6 +22,8 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             if vd_c.IMAGE in attachment_.get(vd_c.TYPE):
                 valid_qr_codes.append(attachment_)
+            else:
+                self.record.invalid_type = True
         self.record.qr_codes = valid_qr_codes
 
     def validate_duplicate_files(self) -> None:
@@ -43,4 +45,8 @@ class ValidateDonation:
             if detector.detect():
                 if any(v in detector.qr_code for v in self.qr_text):
                     valid_qr_codes.append(attachment_)
+                else:
+                    self.record.provider_mismatch = True
+            else:
+                self.record.missing_qr = True
         self.record.qr_codes = valid_qr_codes

@@ -47,6 +47,9 @@ class Donations(Model):
     qr_codes = fields.AttachmentsField(don_c.QR_CODE)
     in_use_flag = fields.SelectField(don_c.IN_USE_FLAG)
     donor_error = fields.CheckboxField(don_c.DONOR_ERROR)
+    invalid_type = fields.CheckboxField(don_c.INVALID_TYPE)
+    missing_qr = fields.CheckboxField(don_c.MISSING_QR)
+    provider_mismatch = fields.CheckboxField(don_c.PROVIDER_MISMATCH)
 
     @classmethod
     def fetch_all(cls) -> list:

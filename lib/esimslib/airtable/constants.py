@@ -35,6 +35,9 @@ class DonationsModelConst:
     QR_CODE = "QR Codes"
     IN_USE_FLAG = "QR Code In Use"
     DONOR_ERROR = "Donor Error"
+    INVALID_TYPE = "Invalid Type"
+    MISSING_QR = "Missing QR Code"
+    PROVIDER_MISMATCH = "Provider Mismatch"
 
     # QR Codes Keys
     URL = "url"
