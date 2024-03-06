@@ -17,3 +17,8 @@ LIB:
 INGEST:
   - ingestesims/*
   - ingestesims/**/*
+
+# Add 'DEDUPLICATE' label to any change within the deduplicate/** files within source dir
+DEDUPLICATE:
+  - deduplicate/*
+  - deduplicate/**/*

@@ -94,6 +94,16 @@ class Attachments(Model):
     attachment = fields.AttachmentsField(att_c.ATTACHMENT)
     donor = fields.LinkField(att_c.DONOR, Donations)
     qr_sha = fields.TextField(att_c.QR_SHA)
+    order_id = fields.TextField(att_c.ORDER_ID)
+
+    @classmethod
+    def fetch_all(cls) -> list:
+        """Fetch all duplicated eSIMs.
+
+        Returns:
+            list: list of linked eSIMs records.
+        """
+        return cls.all(view=air_c.DEFAULT_VIEW)
 
     @classmethod
     def load_records(cls, records: list) -> None:
