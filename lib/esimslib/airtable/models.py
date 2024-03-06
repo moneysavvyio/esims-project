@@ -50,6 +50,8 @@ class Donations(Model):
     invalid_type = fields.CheckboxField(don_c.INVALID_TYPE)
     missing_qr = fields.CheckboxField(don_c.MISSING_QR)
     provider_mismatch = fields.CheckboxField(don_c.PROVIDER_MISMATCH)
+    email = fields.TextField(don_c.EMAIL)
+    duplicate = fields.CheckboxField(don_c.DUPLICATE)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -78,6 +80,10 @@ class Donations(Model):
     def set_donor_error(self) -> None:
         """Set Donor Error to True"""
         self.donor_error = True
+
+    def set_duplicate_error(self) -> None:
+        """Set Duplicate Error to True"""
+        self.duplicate = True
 
     class Meta:
         """Config subClass"""

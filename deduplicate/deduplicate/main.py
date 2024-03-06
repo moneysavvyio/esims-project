@@ -1,7 +1,9 @@
 """Deduplicate Esims Linked"""
 
 from esimslib.util import logger
-from esimslib.airtable import Attachments
+from esimslib.airtable import Attachments, Donations
+
+from deduplicate.constants import DuplicateConst as d_c
 
 
 def combine_duplicated_records(records: list) -> dict:
@@ -28,10 +30,28 @@ def delete_duplicate(records: list) -> None:
     Args:
         records (list): list of records.
     """
+    # sort records chronologically
     records.sort(key=lambda record: record.order_id)
+    # if original record misses the donor.
     if len(records) == 1:
         records.append(records[0])
-    Attachments.batch_delete(records[1:])
+        records[0].donor[0].email = d_c.DEFAULT_EMAIL
+    original, duplicates = records[0], records[1:]
+    # check if submissions from different donors
+    donors = [
+        record.donor[0]
+        for record in duplicates
+        if not (
+            record.donor[0].email.lower() == original.donor[0].email.lower()
+        )
+    ]
+    # delete duplicates
+    Attachments.batch_delete(duplicates)
+    # notify different donors
+    if donors:
+        # pylint: disable=expression-not-assigned
+        [donor.set_duplicate_error() for donor in donors]
+        Donations.batch_save(donors)
 
 
 def main() -> None:

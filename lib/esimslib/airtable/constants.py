@@ -38,6 +38,8 @@ class DonationsModelConst:
     INVALID_TYPE = "Invalid Type"
     MISSING_QR = "Missing QR Code"
     PROVIDER_MISMATCH = "Provider Mismatch"
+    EMAIL = "Email"
+    DUPLICATE = "Duplicate"
 
     # QR Codes Keys
     URL = "url"
