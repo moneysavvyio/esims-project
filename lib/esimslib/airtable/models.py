@@ -60,15 +60,15 @@ class Donations(Model):
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
 
-    def extract_urls(self) -> list:
-        """Extract URL from attachment.
+    def extract_urls(self) -> dict:
+        """Extract SHA: URL from attachment.
 
         Returns:
-            list: list of URLs.
+            dict: {SHA: URL}.
         """
-        urls = []
+        urls = {}
         for attachment_ in self.qr_codes:
-            urls.append(attachment_.get(don_c.URL))
+            urls[attachment_.get(don_c.SHA)] = attachment_.get(don_c.URL)
         return urls
 
     def set_in_use(self) -> None:
@@ -93,6 +93,7 @@ class Attachments(Model):
     esim_provider = fields.LinkField(att_c.ESIM_PROVIDER, Providers)
     attachment = fields.AttachmentsField(att_c.ATTACHMENT)
     donor = fields.LinkField(att_c.DONOR, Donations)
+    qr_sha = fields.TextField(att_c.QR_SHA)
 
     @classmethod
     def load_records(cls, records: list) -> None:

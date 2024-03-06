@@ -41,6 +41,7 @@ class DonationsModelConst:
 
     # QR Codes Keys
     URL = "url"
+    SHA = "sha"
 
     # Set Values
     YES = "Yes"
@@ -55,3 +56,4 @@ class AttachmentModelConst:
     ESIM_PROVIDER = "eSIM Provider"
     DONOR = "Linked Donor"
     ATTACHMENT = "Attachments"
+    QR_SHA = "QR SHA"
