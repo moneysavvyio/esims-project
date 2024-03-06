@@ -14,6 +14,7 @@ class ValidateDonation:
             record: Donation object.
         """
         self.record = record
+        self.qr_text = self.record.esim_provider[0].qr_text or [""]
 
     def validate_attachment_type(self) -> None:
         """Check if attachment type is image."""
@@ -40,5 +41,6 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
             if detector.detect():
-                valid_qr_codes.append(attachment_)
+                if any(v in detector.qr_code for v in self.qr_text):
+                    valid_qr_codes.append(attachment_)
         self.record.qr_codes = valid_qr_codes

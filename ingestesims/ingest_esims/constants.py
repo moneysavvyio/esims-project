@@ -20,3 +20,6 @@ class ValidateDonationConst:
 
     # Accepted Types
     IMAGE = "image"
+
+    # Encoding
+    UTF8 = "utf-8"

@@ -22,6 +22,7 @@ class ProvidersModelConst:
 
     # Table Variables
     NAME = "Name"
+    QR_TEXT = "qr_text"
 
 
 class DonationsModelConst:
