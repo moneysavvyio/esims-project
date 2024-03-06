@@ -3,6 +3,8 @@
 from esimslib.util import logger
 from esimslib.airtable import Attachments, Donations
 
+from deduplicate.constants import DuplicateConst as d_c
+
 
 def combine_duplicated_records(records: list) -> dict:
     """Combine duplicated records
@@ -33,6 +35,7 @@ def delete_duplicate(records: list) -> None:
     # if original record misses the donor.
     if len(records) == 1:
         records.append(records[0])
+        records[0].donor[0].email = d_c.DEFAULT_EMAIL
     original, duplicates = records[0], records[1:]
     # check if submissions from different donors
     donors = [
