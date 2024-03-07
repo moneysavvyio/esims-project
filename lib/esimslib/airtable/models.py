@@ -52,6 +52,7 @@ class Donations(Model):
     provider_mismatch = fields.CheckboxField(don_c.PROVIDER_MISMATCH)
     email = fields.TextField(don_c.EMAIL)
     duplicate = fields.CheckboxField(don_c.DUPLICATE)
+    original = fields.LinkField(don_c.ORIGINAL, "Donations")
 
     @classmethod
     def fetch_all(cls) -> list:

@@ -49,8 +49,9 @@ def delete_duplicate(records: list) -> None:
     Attachments.batch_delete(duplicates)
     # notify different donors
     if donors:
-        # pylint: disable=expression-not-assigned
-        [donor.set_duplicate_error() for donor in donors]
+        for donor in donors:
+            donor.set_duplicate_error()
+            donor.original = [original.donor[0]]
         Donations.batch_save(donors)
 
 
