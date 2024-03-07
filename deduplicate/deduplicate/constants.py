@@ -6,4 +6,4 @@
 class DuplicateConst:
     """Duplicate module constants."""
 
-    DEFAULT_EMAIL = "IamDifferent"
+    MEEDAN = "Meedan"
