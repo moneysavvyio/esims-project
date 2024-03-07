@@ -3,7 +3,7 @@
 from esimslib.util import logger
 from esimslib.airtable import Attachments, Donations
 
-from deduplicate.constants import DuplicateConst as d_c
+from deduplicate.constants import DuplicateConst as dp_c
 
 
 def combine_duplicated_records(records: list) -> dict:
@@ -25,20 +25,30 @@ def combine_duplicated_records(records: list) -> dict:
 
 
 def _update_duplicate_donation_info(
-    original: Donations, duplicates: list
+    original: Attachments, duplicates: list
 ) -> None:
     """Update duplicate donation info
 
     Args:
-        original (Donations): original record.
-        duplicates (list): list of duplicates.
+        original (Donations): original attachment record.
+        duplicates (list): list of duplicate attachments.
     """
-    for duplicate in duplicates:
-        duplicate.set_duplicate_error()
-        duplicate.set_original_donor(original)
-        if not duplicate.email.lower() == original.email.lower():
-            duplicate.set_different_email()
-    Donations.batch_save(duplicates)
+    original_donation = original.donor[0] if original.donor else None
+    duplicate_donations = [
+        duplicate.donor[0] for duplicate in duplicates if duplicate.donor
+    ]
+    for duplicate_donation in duplicate_donations:
+        duplicate_donation.set_duplicate_error()
+        if original_donation:
+            duplicate_donation.set_original_donor(original_donation)
+            if (
+                not duplicate_donation.email.lower()
+                == original_donation.email.lower()
+            ):
+                duplicate_donation.set_different_email()
+        else:
+            duplicate_donation.set_different_email()
+    Donations.batch_save(duplicate_donations)
 
 
 def delete_duplicate(records: list) -> None:
@@ -48,18 +58,15 @@ def delete_duplicate(records: list) -> None:
         records (list): list of records.
     """
     # sort records chronologically
-    records.sort(key=lambda record: record.order_id)
-    # if original record misses the donor.
-    if len(records) == 1:
-        records.append(records[0])
-        records[0].donor[0].email = d_c.DEFAULT_EMAIL
+    if dp_c.MEEDAN in records[0].esim_provider[0].name:
+        records.sort(key=lambda record: record.order_id, reverse=True)
+    else:
+        records.sort(key=lambda record: record.order_id, reverse=False)
     original, duplicates = records[0], records[1:]
     # delete duplicates
     Attachments.batch_delete(duplicates)
     # update donation info
-    _update_duplicate_donation_info(
-        original.donor[0], [duplicate.donor[0] for duplicate in duplicates]
-    )
+    _update_duplicate_donation_info(original, duplicates)
 
 
 def main() -> None:
