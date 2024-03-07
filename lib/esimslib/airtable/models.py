@@ -53,6 +53,7 @@ class Donations(Model):
     email = fields.TextField(don_c.EMAIL)
     duplicate = fields.CheckboxField(don_c.DUPLICATE)
     original = fields.LinkField(don_c.ORIGINAL, "Donations")
+    diff_email = fields.CheckboxField(don_c.DIFF_EMAIL)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -85,6 +86,18 @@ class Donations(Model):
     def set_duplicate_error(self) -> None:
         """Set Duplicate Error to True"""
         self.duplicate = True
+
+    def set_different_email(self) -> None:
+        """Set Different Email to True"""
+        self.diff_email = True
+
+    def set_original_donor(self, donor: "Donations") -> None:
+        """Set Original Donor
+
+        Args:
+            donor (Donations): Original Donor.
+        """
+        self.original = [donor]
 
     class Meta:
         """Config subClass"""
