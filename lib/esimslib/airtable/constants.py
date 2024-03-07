@@ -40,6 +40,8 @@ class DonationsModelConst:
     PROVIDER_MISMATCH = "Provider Mismatch"
     EMAIL = "Email"
     DUPLICATE = "Duplicate"
+    ORIGINAL = "Original Donation"
+    DIFF_EMAIL = "Different Email"
 
     # QR Codes Keys
     URL = "url"

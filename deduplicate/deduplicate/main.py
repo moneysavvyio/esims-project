@@ -24,6 +24,23 @@ def combine_duplicated_records(records: list) -> dict:
     return combined_records
 
 
+def _update_duplicate_donation_info(
+    original: Donations, duplicates: list
+) -> None:
+    """Update duplicate donation info
+
+    Args:
+        original (Donations): original record.
+        duplicates (list): list of duplicates.
+    """
+    for duplicate in duplicates:
+        duplicate.set_duplicate_error()
+        duplicate.set_original_donor(original)
+        if not duplicate.email.lower() == original.email.lower():
+            duplicate.set_different_email()
+    Donations.batch_save(duplicates)
+
+
 def delete_duplicate(records: list) -> None:
     """Delete duplicate records
 
@@ -37,21 +54,12 @@ def delete_duplicate(records: list) -> None:
         records.append(records[0])
         records[0].donor[0].email = d_c.DEFAULT_EMAIL
     original, duplicates = records[0], records[1:]
-    # check if submissions from different donors
-    donors = [
-        record.donor[0]
-        for record in duplicates
-        if not (
-            record.donor[0].email.lower() == original.donor[0].email.lower()
-        )
-    ]
     # delete duplicates
     Attachments.batch_delete(duplicates)
-    # notify different donors
-    if donors:
-        # pylint: disable=expression-not-assigned
-        [donor.set_duplicate_error() for donor in donors]
-        Donations.batch_save(donors)
+    # update donation info
+    _update_duplicate_donation_info(
+        original.donor[0], [duplicate.donor[0] for duplicate in duplicates]
+    )
 
 
 def main() -> None:
