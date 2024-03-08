@@ -1,5 +1,6 @@
 """QR Code Detector"""
 
+import hashlib
 import requests
 import cv2
 import numpy as np
@@ -21,7 +22,26 @@ class QRCodeDetector:
             url (str): Image URL to detect QR Code.
         """
         self.url = url
-        self.qr_code: bytes = b""
+        self._qr_code: str = ""
+
+    @property
+    def qr_code(self) -> str:
+        """QR Code
+
+        Returns:
+            str: QR Code
+        """
+        return self._qr_code
+
+    @qr_code.setter
+    def qr_code(self, value: bytes) -> None:
+        """Set QR Code from bytes.
+
+        Args:
+            value (bytes): QR Code info in bytes
+        """
+        self._qr_code = value.decode("utf-8")
+        self.qr_sha = hashlib.sha256(value).hexdigest()
 
     def _read_image(self) -> np.ndarray:
         """Format Image from url

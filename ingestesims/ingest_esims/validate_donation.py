@@ -1,7 +1,5 @@
 """Validate Donation Class"""
 
-import hashlib
-
 from esimslib.airtable import DonationsModelConst as don_c
 from esimslib.util import QRCodeDetector
 
@@ -48,13 +46,7 @@ class ValidateDonation:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
             if detector.detect():
                 if any(v in detector.qr_code for v in self.qr_text):
-                    attachment_.update(
-                        {
-                            don_c.SHA: hashlib.sha256(
-                                detector.qr_code
-                            ).hexdigest()
-                        }
-                    )
+                    attachment_.update({don_c.SHA: detector.qr_sha})
                     valid_qr_codes.append(attachment_)
                 else:
                     self.record.provider_mismatch = True
