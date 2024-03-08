@@ -156,12 +156,18 @@ def main() -> None:
 
         # delete from Dropbox
         valid_list = [valid_list[i] for i, sha in enumerate(valid_qrs) if sha]
+
         job_id = dbx_connector.delete_batch(valid_list)
         while not dbx_connector.check_delete_job_status(job_id):
             time.sleep(3)
             logger.info(
                 "Waiting for Dropbox delete job to finish...: %s", record.name
             )
+
+        # Check if invalid
+        invalid_list = list(set(path_list) - set(valid_list))
+        if invalid_list:
+            record.set_stock_err()
         logger.info("Esims Uploaded Successfully: %s", record.name)
 
 

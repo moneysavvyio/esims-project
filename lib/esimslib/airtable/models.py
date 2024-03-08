@@ -22,6 +22,7 @@ class Providers(Model):
 
     name = fields.TextField(prov_c.NAME)
     qr_text = fields.SelectField(prov_c.QR_TEXT)
+    stock_err = fields.CheckboxField(prov_c.STOCK_ERR)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -31,6 +32,10 @@ class Providers(Model):
             list: list of providers records.
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
+
+    def set_stock_err(self) -> None:
+        """Set stocking error flag."""
+        Providers(id=self.id, stock_err=True).save()
 
     class Meta:
         """Config subClass"""
