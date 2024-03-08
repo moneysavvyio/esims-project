@@ -7,7 +7,7 @@ import numpy as np
 from pyzbar.pyzbar import decode, ZBarSymbol
 
 from esimslib.util.logger import logger
-from ingest_esims.constants import ValidateDonationConst as c
+from esimslib.util.constants import QRConst as qr_c
 
 # pylint: disable=no-member
 
@@ -53,7 +53,7 @@ class QRCodeDetector:
         )
         qr_code = decode(image, symbols=[ZBarSymbol.QRCODE])
         if bool(qr_code):
-            self.qr_code = qr_code[0].data.decode(c.UTF8)
+            self.qr_code = qr_code[0].data.decode(qr_c.UTF8)
         return bool(qr_code)
 
     def detect(self) -> bool:
@@ -65,7 +65,7 @@ class QRCodeDetector:
         try:
             qr_code = decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])
             if bool(qr_code):
-                self.qr_code = qr_code[0].data.decode(c.UTF8)
+                self.qr_code = qr_code[0].data.decode(qr_c.UTF8)
                 return True
         except TypeError:
             logger.warning("Failed to read image type: %s", self.url)

@@ -2,10 +2,10 @@
 
 import hashlib
 
-from esimslib.airtable.constants import DonationsModelConst as don_c
+from esimslib.airtable import DonationsModelConst as don_c
+from esimslib.util import QRCodeDetector
 
 from ingest_esims.constants import ValidateDonationConst as vd_c
-from ingest_esims.qr_code_detector import QRCodeDetector
 
 
 class ValidateDonation:
