@@ -51,7 +51,7 @@ class ValidateDonation:
                     attachment_.update(
                         {
                             don_c.SHA: hashlib.sha256(
-                                detector.qr_code.encode(vd_c.UTF8)
+                                detector.qr_code
                             ).hexdigest()
                         }
                     )
