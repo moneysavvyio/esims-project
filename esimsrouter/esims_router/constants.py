@@ -13,6 +13,7 @@ class RouterConst:
     ON = "ON_{count}"
     OFF = "OFF"
     DELIMITER = "_"
+    MAX_COUNT = 15
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"

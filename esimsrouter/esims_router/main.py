@@ -30,22 +30,31 @@ class LambdaState:
             bool: Lambda State.
         """
         state = self.ssm.get_parameter(self.state_key)
-        if state == r_c.OFF:
-            return True
-        count = int(state.split(r_c.DELIMITER)[1])
-        if count > 15:
-            return True
-        return False
+        return state == r_c.OFF
 
-    def set_state(self) -> None:
-        """Set Lambda State parameter in SSM"""
-        count = 0
-        current_state = self.ssm.get_parameter(self.state_key)
-        if current_state != r_c.OFF:
-            count = int(current_state.split(r_c.DELIMITER)[1])
-        count += 1
+    def set_state(self, count: int) -> None:
+        """Set Lambda State parameter in SSM
+
+        Args:
+            count (int): Lambda State count.
+        """
         self.ssm.update_parameter(self.state_key, r_c.ON.format(count=count))
         logger.info("Lambda Status Set.")
+
+    def audit_state(self) -> None:
+        """Audit current state if state is ON.
+        - Increment by 1 if < 15.
+        - Set to Off if > 15.
+        """
+        current_state = self.ssm.get_parameter(self.state_key)
+        if current_state == r_c.OFF:
+            return
+        count = int(current_state.split(r_c.DELIMITER)[1])
+        if count < r_c.MAX_COUNT:
+            count += 1
+            self.set_state(count)
+        else:
+            self.reset_state()
 
     def reset_state(self) -> None:
         """Reset Lambda State parameter in SSM"""
@@ -185,7 +194,7 @@ def handler(event: dict, context: dict) -> None:
     state = LambdaState()
     if state.get_state():
         try:
-            state.set_state()
+            state.set_state(0)
             main()
             logger.info("Finished main service driver")
             state.reset_state()
@@ -194,7 +203,7 @@ def handler(event: dict, context: dict) -> None:
             state.reset_state()
             raise exc
     else:
-        state.set_state()
+        state.audit_state()
         logger.info("Esims Router already running. Skipping ...")
 
 
