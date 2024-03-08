@@ -28,11 +28,21 @@ class LambdaState:
             bool: Lambda State.
         """
         state = self.ssm.get_parameter(self.state_key)
-        return state == r_c.OFF
+        if state == r_c.OFF:
+            return True
+        count = int(state.split(r_c.DELIMITER)[1])
+        if count > 15:
+            return True
+        return False
 
     def set_state(self) -> None:
         """Set Lambda State parameter in SSM"""
-        self.ssm.update_parameter(self.state_key, r_c.ON)
+        count = 0
+        current_state = self.ssm.get_parameter(self.state_key)
+        if current_state != r_c.OFF:
+            count = int(current_state.split(r_c.DELIMITER)[1])
+        count += 1
+        self.ssm.update_parameter(self.state_key, r_c.ON.format(count=count))
         logger.info("Lambda Status Set.")
 
     def reset_state(self) -> None:
@@ -124,6 +134,7 @@ def handler(event: dict, context: dict) -> None:
             state.reset_state()
             raise exc
     else:
+        state.set_state()
         logger.info("Esims Router already running. Skipping ...")
 
 
