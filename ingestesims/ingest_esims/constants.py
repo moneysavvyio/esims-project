@@ -20,3 +20,6 @@ class ValidateDonationConst:
 
     # Accepted Types
     IMAGE = "image"
+
+    # LPA Server
+    LPA = "LPA:1$"

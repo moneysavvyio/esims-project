@@ -19,3 +19,4 @@ class RouterConst:
 
     # Image validation
     ACCEPTED_IMAGE_TYPES = ["png", "jpg", "jpeg"]
+    LPA = "LPA:1$"

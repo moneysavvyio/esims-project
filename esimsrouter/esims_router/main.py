@@ -102,8 +102,9 @@ def validate_qr_code(qr_text: list, url: str) -> str:
     """
     detector = QRCodeDetector(url)
     if detector.detect():
-        if any(v in detector.qr_code for v in qr_text):
-            return detector.qr_sha
+        if detector.qr_code.startswith(r_c.LPA):
+            if any(v in detector.qr_code for v in qr_text):
+                return detector.qr_sha
     return ""
 
 

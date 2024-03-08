@@ -45,9 +45,12 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
             if detector.detect():
-                if any(v in detector.qr_code for v in self.qr_text):
-                    attachment_.update({don_c.SHA: detector.qr_sha})
-                    valid_qr_codes.append(attachment_)
+                if detector.qr_code.startswith(vd_c.LPA):
+                    if any(v in detector.qr_code for v in self.qr_text):
+                        attachment_.update({don_c.SHA: detector.qr_sha})
+                        valid_qr_codes.append(attachment_)
+                    else:
+                        self.record.provider_mismatch = True
                 else:
                     self.record.provider_mismatch = True
             else:
