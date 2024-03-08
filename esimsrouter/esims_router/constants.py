@@ -1,4 +1,4 @@
-"""Dropbox Connector Defines"""
+"""eSIMs Router Defines"""
 
 # pylint: disable=too-few-public-methods
 
@@ -10,8 +10,13 @@ class RouterConst:
     STATE_KEY = "LAMBDA_STATE_KEY"
 
     # Lambda states
-    ON = "ON"
+    ON = "ON_{count}"
     OFF = "OFF"
+    DELIMITER = "_"
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
+
+    # Image validation
+    ACCEPTED_IMAGE_TYPES = ["png", "jpg", "jpeg"]
+    LPA = "LPA:1$"

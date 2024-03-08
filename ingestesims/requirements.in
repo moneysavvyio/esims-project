@@ -1,5 +1,1 @@
-opencv-python-headless
-numpy
-requests
-pyzbar
 -e file:../lib
