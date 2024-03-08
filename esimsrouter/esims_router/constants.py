@@ -1,4 +1,4 @@
-"""Dropbox Connector Defines"""
+"""eSIMs Router Defines"""
 
 # pylint: disable=too-few-public-methods
 
@@ -16,3 +16,6 @@ class RouterConst:
 
     # Root Folder
     DBX_PATH = "/ESims for Gaza/Fresh Sims to Load in Airtable/{}"
+
+    # Image validation
+    ACCEPTED_IMAGE_TYPES = ["png", "jpg", "jpeg"]

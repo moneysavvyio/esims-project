@@ -3,7 +3,9 @@
 import os
 import time
 
-from esimslib.util import logger
+from functools import partial
+
+from esimslib.util import logger, QRCodeDetector
 from esimslib.airtable import Providers, Attachments
 from esimslib.connectors import (
     DropboxConnector,
@@ -51,21 +53,58 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
-def load_data_to_airtable(provider_id: str, urls: list) -> None:
+def load_data_to_airtable(provider_id: str, records: list) -> None:
     """Load data to AirTable
 
     Args:
         provider_id (str): Provider ID.
-        urls (list): List of QR Codes URLs.
+        records (list): List of QR Codes URLs and Shas (url, sha).
     """
     attachments = [
         Attachments(
             esim_provider=Attachments.format_esim_provider_field(provider_id),
             attachment=Attachments.format_attachment_field(url),
+            qr_sha=sha,
         )
-        for url in urls
+        for url, sha in records
     ]
     Attachments.load_records(attachments)
+
+
+def validate_file_type(file_path: str) -> bool:
+    """Validate file type
+
+    Args:
+        file_path (str): Dropbox file path.
+
+    Returns:
+        bool: True if file is an image.
+    """
+    if any(
+        file_path.endswith(image_type)
+        for image_type in r_c.ACCEPTED_IMAGE_TYPES
+    ):
+        return True
+    return False
+
+
+def validate_qr_code(qr_text: list, url: str) -> str:
+    """Validate QR Code.
+        - Checks QR code present.
+        - Checks QR data matches provider.
+
+    Args:
+        qr_text (str): Provider's expected domain.
+        url (str): QR Code URL.
+
+    Returns:
+        str: SHA256 hash of the QR Code.
+    """
+    detector = QRCodeDetector(url)
+    if detector.detect():
+        if any(v in detector.qr_code for v in qr_text):
+            return detector.qr_sha
+    return ""
 
 
 def main() -> None:
@@ -86,23 +125,37 @@ def main() -> None:
         if not path_list:
             continue
 
+        # validate file types
+        valid_list = list(filter(validate_file_type, path_list))
+
         # fetch dropbox files' content
-        objects = [dbx_connector.get_file(path) for path in path_list]
+        objects = [dbx_connector.get_file(path) for path in valid_list]
         logger.info("Fetched Sims: %s", len(objects))
 
         # load objects to S3
         urls = [
             s3_connector.load_data(obj, key)
-            for obj, key in zip(objects, path_list)
+            for obj, key in zip(objects, valid_list)
         ]
         logger.info("S3 Loaded Sims: %s", len(urls))
 
+        # validate qr codes
+        partial_validate_qr_code = partial(
+            validate_qr_code, record.qr_text or [""]
+        )
+        valid_qrs = list(map(partial_validate_qr_code, urls))
+        valid_records = [
+            (url, sha) for url, sha in zip(urls, valid_qrs) if sha
+        ]
+        logger.info("Valid Sims: %s", len(valid_records))
+
         # upload to AirTable
-        load_data_to_airtable(record.id, urls)
+        load_data_to_airtable(record.id, valid_records)
         logger.info("Uploaded to AirTable: %s", record.name)
 
         # delete from Dropbox
-        job_id = dbx_connector.delete_batch(path_list)
+        valid_list = [valid_list[i] for i, sha in enumerate(valid_qrs) if sha]
+        job_id = dbx_connector.delete_batch(valid_list)
         while not dbx_connector.check_delete_job_status(job_id):
             time.sleep(3)
             logger.info(
