@@ -8,6 +8,12 @@ COPY ./lib ${LAMBDA_TASK_ROOT}/lib
 # Set Working Directory
 WORKDIR ${LAMBDA_TASK_ROOT}/refreshdropbox
 
+# Install dependencies
+RUN yum -y update \
+    && yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+    && yum makecache \
+    && yum -y install zbar
+
 # Install requirements
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m ensurepip
