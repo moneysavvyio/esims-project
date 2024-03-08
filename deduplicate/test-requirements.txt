@@ -12,11 +12,11 @@ annotated-types==0.6.0
     # via
     #   -c constraints.txt
     #   pydantic
-boto3==1.34.56
+boto3==1.34.58
     # via
     #   -c constraints.txt
     #   esimslib
-botocore==1.34.56
+botocore==1.34.58
     # via
     #   -c constraints.txt
     #   boto3
@@ -46,6 +46,15 @@ jmespath==1.0.1
     #   -c constraints.txt
     #   boto3
     #   botocore
+numpy==1.24.4
+    # via
+    #   -c constraints.txt
+    #   esimslib
+    #   opencv-python-headless
+opencv-python-headless==4.9.0.80
+    # via
+    #   -c constraints.txt
+    #   esimslib
 ply==3.11
     # via
     #   -c constraints.txt
@@ -66,10 +75,15 @@ python-dateutil==2.9.0.post0
     # via
     #   -c constraints.txt
     #   botocore
+pyzbar==0.1.9
+    # via
+    #   -c constraints.txt
+    #   esimslib
 requests==2.31.0
     # via
     #   -c constraints.txt
     #   dropbox
+    #   esimslib
     #   pyairtable
 s3transfer==0.10.0
     # via
@@ -85,7 +99,7 @@ stone==3.3.1
     # via
     #   -c constraints.txt
     #   dropbox
-typing-extensions==4.8.0
+typing-extensions==4.10.0
     # via
     #   -c constraints.txt
     #   annotated-types
