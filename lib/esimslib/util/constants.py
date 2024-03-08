@@ -1,5 +1,7 @@
 """Utils Module constants"""
 
+# pylint: disable=too-few-public-methods
+
 
 class QRConst:
     """QR Detector Constants."""
