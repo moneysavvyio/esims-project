@@ -22,6 +22,8 @@ class ProvidersModelConst:
 
     # Table Variables
     NAME = "Name"
+    QR_TEXT = "qr_text"
+    STOCK_ERR = "stocking_err"
 
 
 class DonationsModelConst:
@@ -34,9 +36,17 @@ class DonationsModelConst:
     QR_CODE = "QR Codes"
     IN_USE_FLAG = "QR Code In Use"
     DONOR_ERROR = "Donor Error"
+    INVALID_TYPE = "Invalid Type"
+    MISSING_QR = "Missing QR Code"
+    PROVIDER_MISMATCH = "Provider Mismatch"
+    EMAIL = "Email"
+    DUPLICATE = "Duplicate"
+    ORIGINAL = "Original Donation"
+    DIFF_EMAIL = "Different Email"
 
     # QR Codes Keys
     URL = "url"
+    SHA = "sha"
 
     # Set Values
     YES = "Yes"
@@ -51,3 +61,5 @@ class AttachmentModelConst:
     ESIM_PROVIDER = "eSIM Provider"
     DONOR = "Linked Donor"
     ATTACHMENT = "Attachments"
+    QR_SHA = "QR SHA"
+    ORDER_ID = "ID"

@@ -1,7 +1,9 @@
 """Validate Donation Class"""
 
+from esimslib.airtable import DonationsModelConst as don_c
+from esimslib.util import QRCodeDetector
+
 from ingest_esims.constants import ValidateDonationConst as vd_c
-from ingest_esims.qr_code_detector import QRCodeDetector
 
 
 class ValidateDonation:
@@ -14,6 +16,7 @@ class ValidateDonation:
             record: Donation object.
         """
         self.record = record
+        self.qr_text = self.record.esim_provider[0].qr_text or [""]
 
     def validate_attachment_type(self) -> None:
         """Check if attachment type is image."""
@@ -21,6 +24,8 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             if vd_c.IMAGE in attachment_.get(vd_c.TYPE):
                 valid_qr_codes.append(attachment_)
+            else:
+                self.record.invalid_type = True
         self.record.qr_codes = valid_qr_codes
 
     def validate_duplicate_files(self) -> None:
@@ -40,5 +45,14 @@ class ValidateDonation:
         for attachment_ in self.record.qr_codes:
             detector = QRCodeDetector(attachment_.get(vd_c.URL))
             if detector.detect():
-                valid_qr_codes.append(attachment_)
+                if detector.qr_code.startswith(vd_c.LPA):
+                    if any(v in detector.qr_code for v in self.qr_text):
+                        attachment_.update({don_c.SHA: detector.qr_sha})
+                        valid_qr_codes.append(attachment_)
+                    else:
+                        self.record.provider_mismatch = True
+                else:
+                    self.record.provider_mismatch = True
+            else:
+                self.record.missing_qr = True
         self.record.qr_codes = valid_qr_codes

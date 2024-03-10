@@ -4,10 +4,10 @@
 #
 #    pip-compile test-requirements.in
 #
--e file:../lib
-    # via -r requirements.in
 -e file:.
     # via -r test-requirements.in
+-e file:../lib
+    # via -r requirements.in
 annotated-types==0.6.0
     # via
     #   -c constraints.txt
@@ -82,7 +82,6 @@ pyzbar==0.1.9
 requests==2.31.0
     # via
     #   -c constraints.txt
-    #   -r requirements.in
     #   dropbox
     #   esimslib
     #   pyairtable

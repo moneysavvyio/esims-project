@@ -67,8 +67,9 @@ def load_data_to_airtable(valid_records: list) -> int:
                     esim_provider=record.esim_provider,
                     attachment=Attachments.format_attachment_field(url),
                     donor=[record],
+                    qr_sha=sha,
                 )
-                for url in urls
+                for sha, url in urls.items()
             ]
         )
     Attachments.load_records(attachments)
@@ -105,6 +106,22 @@ def update_donations_status(valid_records: list, server_records: list) -> None:
             record.set_donor_error()
 
 
+def capture_error_flags(validated_records: list, server_records: list) -> None:
+    """Capture error flags from validation.
+
+    Args:
+        validated_records (list): List of validated donation records.
+        server_records (list): List of server donation records.
+    """
+    validated_records = {record.id: record for record in validated_records}
+    for record in server_records:
+        record.invalid_type = validated_records[record.id].invalid_type
+        record.missing_qr = validated_records[record.id].missing_qr
+        record.provider_mismatch = validated_records[
+            record.id
+        ].provider_mismatch
+
+
 def main() -> None:
     """Main"""
     logger.info("Ingesting Donated eSIMs.")
@@ -119,6 +136,8 @@ def main() -> None:
 
     loaded = load_data_to_airtable(valid_records)
     logger.info("Loaded QR Codes to AirTable (ESims Linked): %s", loaded)
+
+    capture_error_flags(records, server_records)
 
     update_donations_status(valid_records, server_records)
     Donations.batch_save(server_records)
