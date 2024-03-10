@@ -98,10 +98,7 @@ async function getSubscriptionDetails(phoneNumber) {
   }
 }
 
-
-
 async function extendSubscription(phoneNumber, isWithSale = false) {
-    
     try {
       let Duration;
       let SaleId;
@@ -135,7 +132,6 @@ async function extendSubscription(phoneNumber, isWithSale = false) {
 };
 
 async function activateSubscription(phoneNumber, isWithSale = true) {
-
     try {
       let Duration;
       let SaleId;
@@ -186,5 +182,4 @@ async function getSales(phoneNumber) {
   }
 };
 
-
-module.exports = { getSubscriptionDetails, extendSubscription, activateSubscription, getSales };
+module.exports = { getSubscriptionDetails, extendSubscription, activateSubscription };

@@ -7,7 +7,7 @@
 const { App } = require("@slack/bolt");
 
 const { getSlackFormattedDate, addDaysAndFormat } = require('./utils/dateTime');
-const { getSubscriptionDetails, extendSubscription, activateSubscription, getSales } = require('./layan-t-api');
+const { getSubscriptionDetails, extendSubscription, activateSubscription} = require('./layan-t-api');
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -66,7 +66,6 @@ app.command('/wecom', async ({ command, ack, respond, body, client, context}) =>
             }
           ]
         },
-        
         // Conditionally render an 'Activate' or 'Extend' button        
         subscriptionDetails.isActive ?
         {
@@ -212,7 +211,6 @@ app.view('confirm_extend_subscription', async ({ ack, body, view, client }) => {
 
 
 app.action('request_activate_subscription', async ({ body, ack, client }) => {
-  // Acknowledge the button click event
   await ack();
   const stringified_subscription = body.actions[0].value
   const subscription = JSON.parse(stringified_subscription);
@@ -222,7 +220,6 @@ app.action('request_activate_subscription', async ({ body, ack, client }) => {
   const duration = 90;
 
 
-  // Open a confirmation modal
   const view = await client.views.open({
     trigger_id: body.trigger_id,
     view: {
@@ -307,7 +304,6 @@ app.view('confirm_activate_subscription', async ({ ack, body, view, client }) =>
 
 
 (async () => {
-  // Start your app
   await app.start(process.env.PORT || 3000);
   console.log("⚡️ Bolt app is running");  
 }
