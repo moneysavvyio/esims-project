@@ -1,0 +1,19 @@
+{
+  "name": "layan-slack-client",
+  "version": "0.0.1",
+  "description": "Slack client for Layan-T's management console",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@slack/bolt": "^3.17.1",
+    "axios": "^0.28.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.45"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "license": "MIT"
+}
