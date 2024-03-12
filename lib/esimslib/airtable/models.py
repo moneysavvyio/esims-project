@@ -35,7 +35,13 @@ class Providers(Model):
 
     def set_stock_err(self) -> None:
         """Set stocking error flag."""
-        Providers(id=self.id, stock_err=True).save()
+        if not self.stock_err:
+            Providers(id=self.id, stock_err=True).save()
+
+    def reset_stock_err(self) -> None:
+        """Reset stocking error flag."""
+        if self.stock_err:
+            Providers(id=self.id, stock_err=False).save()
 
     class Meta:
         """Config subClass"""
