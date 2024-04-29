@@ -59,7 +59,7 @@ class AttachmentModelConst:
 
     # Table Variables
     ESIM_PROVIDER = "eSIM Provider"
-    DONOR = "Linked Donor"
+    DONOR = "Linked Donation"
     ATTACHMENT = "Attachments"
     QR_SHA = "QR SHA"
     ORDER_ID = "ID"
