@@ -11,6 +11,7 @@ from esimslib.airtable.constants import (
     ProvidersModelConst as prov_c,
     DonationsModelConst as don_c,
     AttachmentModelConst as att_c,
+    InventoryConst as inv_c,
 )
 from esimslib.util.logger import logger
 
@@ -180,5 +181,41 @@ class Attachments(Model):
         """Config subClass"""
 
         table_name = att_c.TABLE_NAME
+        base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
+        api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
+
+
+class Inventory(Model):
+    """Inventory Check Model"""
+
+    provider_geo = fields.TextField(inv_c.PROVIDER_GEO)
+    provider = fields.SelectField(inv_c.PROVIDER)
+    geo = fields.SelectField(inv_c.GEO)
+    low_flag = fields.CheckboxField(inv_c.LOW_FLAG)
+    in_stock = fields.CountField(inv_c.IN_STOCK)
+
+    @classmethod
+    def fetch_all(cls) -> list:
+        """Fetch all ID, Names from table.
+
+        Returns:
+            list: list of providers records.
+        """
+        return cls.all(view=air_c.DEFAULT_VIEW)
+
+    @classmethod
+    def wecom_check(cls) -> bool:
+        """Check wecom inventory.
+
+        Returns:
+            bool: True if low inventory.
+        """
+        wecom = cls.from_id(inv_c.WECOM_ID)
+        return wecom.low_flag
+
+    class Meta:
+        """Config subClass"""
+
+        table_name = inv_c.TABLE_NAME
         base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
         api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
