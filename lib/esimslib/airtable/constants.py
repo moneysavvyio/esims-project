@@ -24,6 +24,7 @@ class ProvidersModelConst:
     NAME = "Name"
     QR_TEXT = "qr_text"
     STOCK_ERR = "stocking_err"
+    RENEWABLE = "Renewable"
 
 
 class DonationsModelConst:
@@ -63,6 +64,10 @@ class AttachmentModelConst:
     ATTACHMENT = "Attachments"
     QR_SHA = "QR SHA"
     ORDER_ID = "ID"
+    ESIM_PHONE_NUMBER = "eSIM Phone Number"
+    ESIM_PHONE_NUMBER_ERROR = "eSIM Phone Number Error"
+
+    RENEWABLE_VIEW = "renewable_esims"
 
 
 class InventoryConst:

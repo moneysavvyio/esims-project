@@ -79,7 +79,7 @@ class QRCodeDetector:
         """Detect QR Code
 
         Returns:
-            bool: True if QR Codel is detected, False otherwise.
+            bool: True if QR Code is detected, False otherwise.
         """
         try:
             qr_code = decode(self._read_image(), symbols=[ZBarSymbol.QRCODE])

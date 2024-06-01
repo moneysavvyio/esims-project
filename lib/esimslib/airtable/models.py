@@ -24,6 +24,8 @@ class Providers(Model):
     name = fields.TextField(prov_c.NAME)
     qr_text = fields.SelectField(prov_c.QR_TEXT)
     stock_err = fields.CheckboxField(prov_c.STOCK_ERR)
+    
+    renewable = fields.CheckboxField(prov_c.RENEWABLE)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -127,6 +129,8 @@ class Attachments(Model):
     donor = fields.LinkField(att_c.DONOR, Donations)
     qr_sha = fields.TextField(att_c.QR_SHA)
     order_id = fields.TextField(att_c.ORDER_ID)
+    esim_phone_number = fields.TextField(att_c.ESIM_PHONE_NUMBER)
+    esim_phone_number_error = fields.CheckboxField(att_c.ESIM_PHONE_NUMBER_ERROR)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -136,6 +140,15 @@ class Attachments(Model):
             list: list of linked eSIMs records.
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
+    
+    @classmethod
+    def fetch_renewable(cls) -> list:
+        """Fetch all renewable eSIMs.
+
+        Returns:
+            list: list of linked eSIMs records.
+        """
+        return cls.all(view=att_c.RENEWABLE_VIEW)
 
     @classmethod
     def load_records(cls, records: list) -> None:

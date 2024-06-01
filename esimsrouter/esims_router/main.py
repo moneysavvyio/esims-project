@@ -5,7 +5,7 @@ import time
 
 from functools import partial
 
-from esimslib.util import logger, QRCodeDetector
+from esimslib.util import logger, QRCodeDetector, ImagePhoneNumberReader
 from esimslib.airtable import Providers, Attachments
 from esimslib.connectors import (
     DropboxConnector,
@@ -62,6 +62,7 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
+# TODO: Add esim phone number here
 def load_data_to_airtable(provider_id: str, records: list) -> None:
     """Load data to AirTable
 
@@ -74,8 +75,10 @@ def load_data_to_airtable(provider_id: str, records: list) -> None:
             esim_provider=Attachments.format_esim_provider_field(provider_id),
             attachment=Attachments.format_attachment_field(url),
             qr_sha=sha,
+            esim_phone_number=phone_number,
+            esim_phone_number_error=is_phone_number_error
         )
-        for url, sha in records
+        for url, sha, phone_number, is_phone_number_error in records
     ]
     Attachments.load_records(attachments)
 
@@ -97,7 +100,7 @@ def validate_file_type(file_path: str) -> bool:
     return False
 
 
-def validate_qr_code(qr_text: list, url: str) -> str:
+def  validate_qr_code(qr_text: list, url: str) -> str:
     """Validate QR Code.
         - Checks QR code present.
         - Checks QR data matches provider.
@@ -116,6 +119,20 @@ def validate_qr_code(qr_text: list, url: str) -> str:
                 return detector.qr_sha
     return ""
 
+def read_phone_number_from_image(url: str) -> str:
+    """Read phone Number from image URL if possible
+
+
+    Args:
+        url (str): QR Code URL.
+
+    Returns:
+        str: phone number listed in the QR code text, if any. Empty string if no matching phone number found.
+    """
+    phone_number_reader = ImagePhoneNumberReader(url)
+    if phone_number_reader.read_phone_number():
+        return phone_number_reader.phone_number
+    return ""
 
 def main() -> None:
     """Main Service Driver"""
@@ -159,8 +176,20 @@ def main() -> None:
         ]
         logger.info("Valid Sims: %s", len(valid_records))
 
+        # Read esim phone number for renewable sims
+        processed_records = [
+            (
+                url,
+                sha,
+                phone_number if record.renewable else None,
+                not phone_number if record.renewable else False
+            )
+            for url, sha in valid_records
+            for phone_number in [read_phone_number_from_image(url) if record.renewable else ""]
+        ]
+
         # upload to AirTable
-        load_data_to_airtable(record.id, valid_records)
+        load_data_to_airtable(record.id, processed_records)
         logger.info("Uploaded to AirTable: %s", record.name)
 
         # delete from Dropbox
