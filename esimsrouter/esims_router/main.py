@@ -174,9 +174,11 @@ def main() -> None:
             )
 
         # Check if invalid
-        invalid_list = list(set(path_list) - set(valid_list))
+        invalid_list = bool(set(path_list) - set(valid_list))
         if invalid_list:
             record.set_stock_err()
+        else:
+            record.reset_stock_err()
         logger.info("Esims Uploaded Successfully: %s", record.name)
 
 

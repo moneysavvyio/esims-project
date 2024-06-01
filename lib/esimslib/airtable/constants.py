@@ -59,7 +59,23 @@ class AttachmentModelConst:
 
     # Table Variables
     ESIM_PROVIDER = "eSIM Provider"
-    DONOR = "Linked Donor"
+    DONOR = "Linked Donation"
     ATTACHMENT = "Attachments"
     QR_SHA = "QR SHA"
     ORDER_ID = "ID"
+
+
+class InventoryConst:
+    """Airtable Defines"""
+
+    TABLE_NAME = "Inventory Check"
+
+    # Field Names
+    PROVIDER_GEO = "Provider_Geo"
+    PROVIDER = "Provider"
+    GEO = "Geo"
+    LOW_FLAG = "Low Inventory"
+    IN_STOCK = "In Stock"
+
+    # wecom ID
+    WECOM_ID = "recfYIKXh1IydF3G2"
