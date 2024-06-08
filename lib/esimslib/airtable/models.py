@@ -22,6 +22,9 @@ class Providers(Model):
     """eSIM Providers Model"""
 
     name = fields.TextField(prov_c.NAME)
+    networks = fields.MultipleSelectField(prov_c.NETWORKS)
+    capacity = int(fields.SelectField(prov_c.GB))
+    days_valid = int(fields.SelectField(prov_c.DAYS_VALID))
     qr_text = fields.SelectField(prov_c.QR_TEXT)
     stock_err = fields.CheckboxField(prov_c.STOCK_ERR)
 
@@ -193,6 +196,7 @@ class Inventory(Model):
     geo = fields.SelectField(inv_c.GEO)
     low_flag = fields.CheckboxField(inv_c.LOW_FLAG)
     in_stock = fields.CountField(inv_c.IN_STOCK)
+    automatic_restock_flag = fields.CheckboxField(inv_c.AUTOMATIC_RESTOCK)
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -204,15 +208,26 @@ class Inventory(Model):
         return cls.all(view=air_c.DEFAULT_VIEW)
 
     @classmethod
-    def wecom_check(cls) -> bool:
+    # TODO: Add the return type of this function. What is it? Model?
+    def wecom_inventory(cls):
         """Check wecom inventory.
 
         Returns:
-            bool: True if low inventory.
+            wecom inventory object
         """
         wecom = cls.from_id(inv_c.WECOM_ID)
-        return wecom.low_flag
+        return wecom
+    
+    @classmethod
+    # TODO: Add the return type of this function. What is it? Model?
+    def hotmobile_inventory(cls):
+        """Check hotmobile inventory.
 
+        Returns:
+            hotmobile inventory object
+        """
+        hot = cls.from_id(inv_c.HOTMOBILE_ID)
+        return hot
     class Meta:
         """Config subClass"""
 

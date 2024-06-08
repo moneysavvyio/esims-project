@@ -24,6 +24,9 @@ class ProvidersModelConst:
     NAME = "Name"
     QR_TEXT = "qr_text"
     STOCK_ERR = "stocking_err"
+    NETWORKS = "Compatible Networks"
+    GB = "GB"
+    DAYS_VALID = "Days Valid"
 
 
 class DonationsModelConst:
@@ -76,6 +79,8 @@ class InventoryConst:
     GEO = "Geo"
     LOW_FLAG = "Low Inventory"
     IN_STOCK = "In Stock"
+    AUTOMATIC_RESTOCK = "Automatic Restock"
 
     # wecom ID
     WECOM_ID = "recfYIKXh1IydF3G2"
+    HOTMOBILE_ID = "recKGLBGOFaN1QZXq"
