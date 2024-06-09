@@ -65,9 +65,6 @@ class AttachmentModelConst:
     QR_SHA = "QR SHA"
     ORDER_ID = "ID"
     ESIM_PHONE_NUMBER = "eSIM Phone Number"
-    ESIM_PHONE_NUMBER_ERROR = "eSIM Phone Number Error"
-
-    RENEWABLE_VIEW = "renewable_esims"
 
 
 class InventoryConst:
