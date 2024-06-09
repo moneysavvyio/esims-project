@@ -167,9 +167,9 @@ class EsimDonation(Model):
             urls[attachment_.get(don_c.SHA)] = attachment_.get(don_c.URL)
         return urls
 
-    def set_as_accepted(self) -> None:
-        """Set as accepted"""
-        self.is_accepted = True
+    def set_as_ingested(self) -> None:
+        """Set as ingested"""
+        self.is_ingested = True
 
     def set_as_rejected(self) -> None:
         """Set Donor Error to True"""
