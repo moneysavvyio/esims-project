@@ -3,8 +3,6 @@
 from esimslib.util import logger
 from esimslib.airtable import Attachments, Donations
 
-from deduplicate.constants import DuplicateConst as dp_c
-
 
 def combine_duplicated_records(records: list) -> dict:
     """Combine duplicated records
@@ -58,10 +56,7 @@ def delete_duplicate(records: list) -> None:
         records (list): list of records.
     """
     # sort records chronologically
-    if dp_c.MEEDAN in records[0].esim_provider[0].name:
-        records.sort(key=lambda record: record.order_id, reverse=True)
-    else:
-        records.sort(key=lambda record: record.order_id, reverse=False)
+    records.sort(key=lambda record: record.order_id, reverse=False)
     original, duplicates = records[0], records[1:]
     # delete duplicates
     Attachments.batch_delete(duplicates)
