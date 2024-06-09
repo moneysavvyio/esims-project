@@ -1,10 +1,12 @@
 """Deduplicate Esims Linked"""
 
+from typing import List, Dict
+
 from esimslib.util import logger
 from esimslib.airtable import Attachments, Donations
 
 
-def combine_duplicated_records(records: list) -> dict:
+def combine_duplicated_records(records: List[Attachments]) -> dict:
     """Combine duplicated records
 
     Args:
@@ -13,7 +15,7 @@ def combine_duplicated_records(records: list) -> dict:
     Returns:
         dict: combined records {SHA: records}.
     """
-    combined_records = {}
+    combined_records: Dict[str, List[Attachments]] = {}
     for record in records:
         if record.qr_sha in combined_records:
             combined_records[record.qr_sha].append(record)
@@ -23,7 +25,7 @@ def combine_duplicated_records(records: list) -> dict:
 
 
 def _update_duplicate_donation_info(
-    original: Attachments, duplicates: list
+    original: Attachments, duplicates: List[Attachments]
 ) -> None:
     """Update duplicate donation info
 
@@ -32,10 +34,11 @@ def _update_duplicate_donation_info(
         duplicates (list): list of duplicate attachments.
     """
     original_donation = original.donor[0] if original.donor else None
-    duplicate_donations = [
+    duplicate_donations: List[Donations] = [
         duplicate.donor[0] for duplicate in duplicates if duplicate.donor
     ]
     for duplicate_donation in duplicate_donations:
+        duplicate_donation.set_donor_error()
         duplicate_donation.set_duplicate_error()
         if original_donation:
             duplicate_donation.set_original_donor(original_donation)
@@ -49,7 +52,7 @@ def _update_duplicate_donation_info(
     Donations.batch_save(duplicate_donations)
 
 
-def delete_duplicate(records: list) -> None:
+def delete_duplicate(records: List[Attachments]) -> None:
     """Delete duplicate records
 
     Args:
