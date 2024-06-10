@@ -111,6 +111,25 @@ def validate_qr_asset(esim_package: EsimPackage, image_url: str) -> EsimAsset:
     return new_asset
 
 
+def deduplicate_assets(assets: List[EsimAsset]) -> List[EsimAsset]:
+    """Remove duplicate QR Codes.
+
+    Args:
+        assets (List[EsimAsset]): eSIM Assets.
+
+    Returns:
+        List[EsimAsset]: eSIM Assets without duplicates.
+    """
+    qr_shas = set()
+    unique_esims = []
+    for esim_asset in assets:
+        if esim_asset.qr_sha in qr_shas:
+            continue
+        qr_shas.add(esim_asset.qr_sha)
+        unique_esims.append(esim_asset)
+    return unique_esims
+
+
 def main() -> None:
     """Main Service Driver."""
     logger.info("Starting e-sims transport service")
@@ -147,10 +166,11 @@ def main() -> None:
         partial_validate_qr_code = partial(validate_qr_asset, esim_package)
         validated_assets = list(map(partial_validate_qr_code, urls))
         valid_esim_assets = list(filter(None, validated_assets))
-        logger.info("Valid Sims: %s", len(valid_esim_assets))
+        unique_esim_assets = deduplicate_assets(valid_esim_assets)
+        logger.info("Valid Sims: %s", len(unique_esim_assets))
 
         # upload to AirTable
-        EsimAsset.load_records(valid_esim_assets)
+        EsimAsset.load_records(unique_esim_assets)
         logger.info("Uploaded to AirTable: %s", esim_package.name)
 
         # delete from Dropbox
