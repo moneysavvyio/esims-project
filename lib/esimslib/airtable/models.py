@@ -56,7 +56,7 @@ class EsimProvider(Model):
 class EsimPackage(Model):
     """eSIM Packages model"""
 
-    package = fields.TextField(pack_c.PACKAGE, readonly=True)
+    name = fields.TextField(pack_c.PACKAGE, readonly=True)
     _esim_provider = fields.LinkField(
         pack_c.ESIM_PROVIDER, EsimProvider, readonly=True
     )
@@ -182,7 +182,7 @@ class EsimAsset(Model):
 
     order_id = fields.AutoNumberField(esim_c.ORDER_ID, readonly=True)
     _esim_package = fields.LinkField(esim_c.ESIM_PACKAGE, EsimPackage)
-    qr_code_image = fields.AttachmentsField(esim_c.QR_CODE)
+    _qr_code_image = fields.AttachmentsField(esim_c.QR_CODE)
     qr_sha = fields.TextField(esim_c.QR_SHA)
     _donation = fields.LinkField(esim_c.DONATION, EsimDonation)
     phone_number = fields.PhoneNumberField(esim_c.PHONE_NUMBER)
@@ -230,6 +230,24 @@ class EsimAsset(Model):
         """
         self._donation = [value]
 
+    @property
+    def qr_code_image(self) -> dict:
+        """QR Code Attachement dict.
+
+        Returns:
+            dict: QR Code Image Info.
+        """
+        return self._qr_code_image[0]
+
+    @qr_code_image.setter
+    def qr_code_image(self, image_url: str) -> None:
+        """Set QR Code attachement from image url.
+
+        Args:
+            image_url (str): QR Code asset url.
+        """
+        self._qr_code_image = [attachment(url=image_url)]
+
     @classmethod
     def fetch_all(cls) -> List["EsimAsset"]:
         """Fetch all duplicated eSIMs.
@@ -255,29 +273,13 @@ class EsimAsset(Model):
             logger.error("Airtable upload error: %s", exc)
             raise exc
 
-    @staticmethod
-    def format_attachment_field(url: str) -> list:
-        """Format attachment field
-
-        Args:
-            url (str): URL of object.
-
-        Returns:
-            list: attachment field.
-        """
-        return [attachment(url=url)]
-
-    @staticmethod
-    def format_esim_package_field(esim_package_id: str) -> EsimPackage:
-        """Format esim package field
+    def set_esim_package_from_id(self, esim_package_id: str) -> None:
+        """Set esim_package from id.
 
         Args:
             esim_package_id (str): eSIM Package id.
-
-        Returns:
-            list: eSIM Packages fields.
         """
-        return EsimPackage(id=esim_package_id)
+        self.esim_package = EsimPackage(id=esim_package_id)
 
     class Meta:
         """Config subClass"""

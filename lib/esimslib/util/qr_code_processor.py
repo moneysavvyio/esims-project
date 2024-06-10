@@ -10,6 +10,8 @@ Manages all QR code operations.
 
 """
 
+from typing import List
+
 import hashlib
 import requests
 import cv2
@@ -21,6 +23,7 @@ from pyzbar.pyzbar import decode, ZBarSymbol
 from esimslib.util.logger import logger
 from esimslib.util.constants import QRCodeConst as qr_c
 import pytesseract
+
 
 # pylint: disable=no-member
 
@@ -83,6 +86,7 @@ class QRCodeProcessor:
         """
         try:
             response = requests.get(self.url, timeout=30)
+            response.raise_for_status()
         except requests.exceptions.RequestException as exc:
             logger.error("Failed to read image: %s", exc)
             raise exc
@@ -148,3 +152,26 @@ class QRCodeProcessor:
         except TypeError:
             logger.warning("Failed to read image type: %s", self.url)
             return False
+
+    def validate_qr_code_protocol(self) -> bool:
+        """Validate QR Code is an eSIM with the protocol set to LPA.
+
+        Returns:
+            bool: True if QR Code is an eSIM, False otherwise.
+        """
+        if self._qr_code.startswith(qr_c.LPA):
+            return True
+        return False
+
+    def validate_smdp_domain(self, smdp_domains: List[str]) -> bool:
+        """Validate qr content against the given smdp domain.
+
+        Args:
+            smdp_domains (List[str]): list of smdp domains.
+
+        Returns:
+            bool: True if qr content matches smdp domain, False otherwise.
+        """
+        if any(v in self._qr_code for v in smdp_domains):
+            return True
+        return False

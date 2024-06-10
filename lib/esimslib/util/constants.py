@@ -12,3 +12,4 @@ class QRCodeConst:
     UINT8 = "uint8"
     PSM = "--psm 11"
     PHONE_PATTERN = re.compile(r"\b(?:055|051|053)\d{7}\b")
+    LPA = "LPA:1$"
