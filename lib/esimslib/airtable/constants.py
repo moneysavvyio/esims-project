@@ -54,6 +54,7 @@ class EsimAssetConst:
     QR_SHA = "QR SHA"
     DONATION = "Donation Record"
     PHONE_NUMBER = "eSIM Phone Number"
+    CHECKED_IN = "checked_in"
 
 
 class EsimDonationConst:
@@ -72,7 +73,7 @@ class EsimDonationConst:
     IS_DUPLICATE = "Is Duplicate"
     CLEAN_EMAIL = "Clean Email"
     ORIGINAL_DONATION = "Original Donation"
-    IS_INORIGINAL_DONOR = "Is Inoriginal Donor"
+    SEND_ERROR_EMAIL = "Send Error Email"
 
     # QR Codes Keys
     URL = "url"

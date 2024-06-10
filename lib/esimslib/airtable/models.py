@@ -115,7 +115,7 @@ class EsimDonation(Model):
     _duplicate_original = fields.LinkField(
         don_c.ORIGINAL_DONATION, "EsimDonation"
     )
-    is_inoriginal_donor = fields.CheckboxField(don_c.IS_INORIGINAL_DONOR)
+    send_error_email = fields.CheckboxField(don_c.SEND_ERROR_EMAIL)
 
     @property
     def esim_package(self) -> EsimPackage:
@@ -145,7 +145,9 @@ class EsimDonation(Model):
         Args:
             original_donation (EsimDonation): Original Donation Record.
         """
-        self._duplicate_original = [original_donation]
+        self._duplicate_original = (
+            [original_donation] if original_donation else []
+        )
 
     @classmethod
     def fetch_all(cls) -> list:
@@ -167,14 +169,6 @@ class EsimDonation(Model):
             urls[attachment_.get(don_c.SHA)] = attachment_.get(don_c.URL)
         return urls
 
-    def set_as_ingested(self) -> None:
-        """Set as ingested"""
-        self.is_ingested = True
-
-    def set_as_rejected(self) -> None:
-        """Set Donor Error to True"""
-        self.is_rejected = True
-
     class Meta:
         """Config subClass"""
 
@@ -192,6 +186,7 @@ class EsimAsset(Model):
     qr_sha = fields.TextField(esim_c.QR_SHA)
     _donation = fields.LinkField(esim_c.DONATION, EsimDonation)
     phone_number = fields.PhoneNumberField(esim_c.PHONE_NUMBER)
+    checked_in = fields.CheckboxField(esim_c.CHECKED_IN, readonly=True)
 
     @property
     def esim_package(self) -> EsimPackage:
