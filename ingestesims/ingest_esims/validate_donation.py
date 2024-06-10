@@ -49,6 +49,7 @@ class ValidateDonation:
         """
         new_asset = EsimAsset()
         new_asset.esim_package = self.donation.esim_package
+        new_asset.donation = self.donation
         new_asset.qr_code_image = image_url
         processer = QRCodeProcessor(image_url)
         if not processer.detect_qr():
