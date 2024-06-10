@@ -71,10 +71,8 @@ class EsimDonationConst:
     MISSING_QR = "Missing QR Code"
     PROVIDER_MISMATCH = "Provider Mismatch"
     IS_DUPLICATE = "Is Duplicate"
+    PROTOCOL_MISMATCH = "Protocol Mismatch"
+    MISSING_PHONE_NUMBER = "Missing Phone Number"
     CLEAN_EMAIL = "Clean Email"
     ORIGINAL_DONATION = "Original Donation"
     SEND_ERROR_EMAIL = "Send Error Email"
-
-    # QR Codes Keys
-    URL = "url"
-    SHA = "sha"

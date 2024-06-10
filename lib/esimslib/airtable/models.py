@@ -108,8 +108,10 @@ class EsimDonation(Model):
     is_ingested = fields.CheckboxField(don_c.INGESTED_FLAG)
     is_rejected = fields.CheckboxField(don_c.REJECTED_FLAG)
     is_of_invalid_type = fields.CheckboxField(don_c.IS_INVALID_TYPE)
-    is_of_missing_qr = fields.CheckboxField(don_c.MISSING_QR)
+    is_missing_qr = fields.CheckboxField(don_c.MISSING_QR)
     is_of_provider_mismatch = fields.CheckboxField(don_c.PROVIDER_MISMATCH)
+    is_not_esim = fields.CheckboxField(don_c.PROTOCOL_MISMATCH)
+    is_missing_phone = fields.CheckboxField(don_c.MISSING_PHONE_NUMBER)
     email = fields.TextField(don_c.CLEAN_EMAIL, readonly=True)
     is_duplicate = fields.CheckboxField(don_c.IS_DUPLICATE)
     _duplicate_original = fields.LinkField(
@@ -158,16 +160,21 @@ class EsimDonation(Model):
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
 
-    def extract_urls(self) -> dict:
-        """Extract SHA: URL from attachment.
+    @classmethod
+    def load_records(cls, records: list) -> None:
+        """Load records to AirTable
 
-        Returns:
-            dict: {SHA: URL}.
+        Args:
+            records (list): list of records to be loaded.
+
+        Raises:
+            Exception: if failed to connect to AirTable
         """
-        urls = {}
-        for attachment_ in self.qr_codes_att:
-            urls[attachment_.get(don_c.SHA)] = attachment_.get(don_c.URL)
-        return urls
+        try:
+            cls.batch_save(records)
+        except Exception as exc:
+            logger.error("Airtable upload error: %s", exc)
+            raise exc
 
     class Meta:
         """Config subClass"""
