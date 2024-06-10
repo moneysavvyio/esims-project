@@ -90,7 +90,6 @@ def validate_qr_asset(esim_package: EsimPackage, image_url: str) -> EsimAsset:
     Returns:
         EsimAsset | None: eSIM Asset if valid.
     """
-    accepted_smdp_domains = esim_package.esim_provider.smdp_domain or [""]
     new_asset = EsimAsset()
     new_asset.esim_package = esim_package
     new_asset.qr_code_image = image_url
@@ -99,8 +98,11 @@ def validate_qr_asset(esim_package: EsimPackage, image_url: str) -> EsimAsset:
         return None
     if not processor.validate_qr_code_protocol():
         return None
-    if not processor.validate_smdp_domain(accepted_smdp_domains):
-        return None
+    if esim_package.esim_provider.smdp_domain:
+        if not processor.validate_smdp_domain(
+            esim_package.esim_provider.smdp_domain
+        ):
+            return None
     new_asset.qr_sha = processor.qr_sha
     if esim_package.esim_provider.renewable:
         if not processor.detect_phone_number():
