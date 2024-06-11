@@ -3,10 +3,11 @@
 import os
 import time
 
+from typing import List
 from functools import partial
 
-from esimslib.util import logger, QRCodeDetector
-from esimslib.airtable import Providers, Attachments
+from esimslib.util import logger, QRCodeProcessor
+from esimslib.airtable import EsimPackage, EsimAsset
 from esimslib.connectors import (
     DropboxConnector,
     S3Connector,
@@ -62,24 +63,6 @@ class LambdaState:
         logger.info("Lambda Status Reset.")
 
 
-def load_data_to_airtable(provider_id: str, records: list) -> None:
-    """Load data to AirTable
-
-    Args:
-        provider_id (str): Provider ID.
-        records (list): List of QR Codes URLs and Shas (url, sha).
-    """
-    attachments = [
-        Attachments(
-            esim_provider=Attachments.format_esim_provider_field(provider_id),
-            attachment=Attachments.format_attachment_field(url),
-            qr_sha=sha,
-        )
-        for url, sha in records
-    ]
-    Attachments.load_records(attachments)
-
-
 def validate_file_type(file_path: str) -> bool:
     """Validate file type
 
@@ -97,38 +80,68 @@ def validate_file_type(file_path: str) -> bool:
     return False
 
 
-def validate_qr_code(qr_text: list, url: str) -> str:
-    """Validate QR Code.
-        - Checks QR code present.
-        - Checks QR data matches provider.
+def validate_qr_asset(esim_package: EsimPackage, image_url: str) -> EsimAsset:
+    """Validate QR Asset.
 
     Args:
-        qr_text (str): Provider's expected domain.
-        url (str): QR Code URL.
+        esim_package (EsimPackage): eSIM Package.
+        image_url (str): QR Code image URL.
 
     Returns:
-        str: SHA256 hash of the QR Code.
+        EsimAsset | None: eSIM Asset if valid.
     """
-    detector = QRCodeDetector(url)
-    if detector.detect():
-        if detector.qr_code.startswith(r_c.LPA):
-            if any(v in detector.qr_code for v in qr_text):
-                return detector.qr_sha
-    return ""
+    new_asset = EsimAsset()
+    new_asset.esim_package = esim_package
+    new_asset.qr_code_image = image_url
+    processor = QRCodeProcessor(image_url)
+    if not processor.detect_qr():
+        return None
+    if not processor.validate_qr_code_protocol():
+        return None
+    if esim_package.esim_provider.smdp_domain:
+        if not processor.validate_smdp_domain(
+            esim_package.esim_provider.smdp_domain
+        ):
+            return None
+    new_asset.qr_sha = processor.qr_sha
+    if esim_package.esim_provider.renewable:
+        if not processor.detect_phone_number():
+            return None
+        new_asset.phone_number = processor.phone_number
+    return new_asset
+
+
+def deduplicate_assets(assets: List[EsimAsset]) -> List[EsimAsset]:
+    """Remove duplicate QR Codes.
+
+    Args:
+        assets (List[EsimAsset]): eSIM Assets.
+
+    Returns:
+        List[EsimAsset]: eSIM Assets without duplicates.
+    """
+    qr_shas = set()
+    unique_esims = []
+    for esim_asset in assets:
+        if esim_asset.qr_sha in qr_shas:
+            continue
+        qr_shas.add(esim_asset.qr_sha)
+        unique_esims.append(esim_asset)
+    return unique_esims
 
 
 def main() -> None:
-    """Main Service Driver"""
+    """Main Service Driver."""
     logger.info("Starting e-sims transport service")
-    records = Providers.fetch_all()
+    esim_packages: List[EsimPackage] = EsimPackage.fetch_all()
     # load connectors
     dbx_connector = DropboxConnector()
     s3_connector = S3Connector()
     # iterate over esims
-    for record in records:
-        logger.info("Processing: %s", record.name)
+    for esim_package in esim_packages:
+        logger.info("Processing: %s", esim_package.name)
 
-        folder = r_c.DBX_PATH.format(record.name)
+        folder = r_c.DBX_PATH.format(esim_package.name)
         path_list = dbx_connector.list_files(folder)
         logger.info("Available Sims %s", len(path_list))
 
@@ -136,50 +149,53 @@ def main() -> None:
             continue
 
         # validate file types
-        valid_list = list(filter(validate_file_type, path_list))
+        valid_types_list = list(filter(validate_file_type, path_list))
 
         # fetch dropbox files' content
-        objects = [dbx_connector.get_file(path) for path in valid_list]
+        objects = [dbx_connector.get_file(path) for path in valid_types_list]
         logger.info("Fetched Sims: %s", len(objects))
 
         # load objects to S3
         urls = [
             s3_connector.load_data(obj, key)
-            for obj, key in zip(objects, valid_list)
+            for obj, key in zip(objects, valid_types_list)
         ]
         logger.info("S3 Loaded Sims: %s", len(urls))
 
         # validate qr codes
-        partial_validate_qr_code = partial(
-            validate_qr_code, record.qr_text or [""]
+        partial_validate_qr_code = partial(validate_qr_asset, esim_package)
+        validated_assets = list(map(partial_validate_qr_code, urls))
+        valid_esim_assets = deduplicate_assets(
+            list(filter(None, validated_assets))
         )
-        valid_qrs = list(map(partial_validate_qr_code, urls))
-        valid_records = [
-            (url, sha) for url, sha in zip(urls, valid_qrs) if sha
-        ]
-        logger.info("Valid Sims: %s", len(valid_records))
+        logger.info("Valid Sims: %s", len(valid_esim_assets))
 
         # upload to AirTable
-        load_data_to_airtable(record.id, valid_records)
-        logger.info("Uploaded to AirTable: %s", record.name)
+        EsimAsset.load_records(valid_esim_assets)
+        logger.info("Uploaded to AirTable: %s", esim_package.name)
 
         # delete from Dropbox
-        valid_list = [valid_list[i] for i, sha in enumerate(valid_qrs) if sha]
+        valid_list = [
+            valid_types_list[i]
+            for i, asset in enumerate(validated_assets)
+            if asset is not None
+        ]
 
         job_id = dbx_connector.delete_batch(valid_list)
         while not dbx_connector.check_delete_job_status(job_id):
             time.sleep(3)
             logger.info(
-                "Waiting for Dropbox delete job to finish...: %s", record.name
+                "Waiting for Dropbox delete job to finish...: %s",
+                esim_package.name,
             )
 
         # Check if invalid
         invalid_list = bool(set(path_list) - set(valid_list))
         if invalid_list:
-            record.set_stock_err()
+            esim_package.set_stock_err()
         else:
-            record.reset_stock_err()
-        logger.info("Esims Uploaded Successfully: %s", record.name)
+            esim_package.reset_stock_err()
+        logger.info("Esims Uploaded Successfully: %s", esim_package.name)
 
 
 # pylint: disable=unused-argument

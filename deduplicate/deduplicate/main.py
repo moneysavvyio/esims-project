@@ -1,84 +1,76 @@
 """Deduplicate Esims Linked"""
 
+from typing import List, Dict
+
 from esimslib.util import logger
-from esimslib.airtable import Attachments, Donations
-
-from deduplicate.constants import DuplicateConst as dp_c
+from esimslib.airtable import EsimAsset, EsimDonation
 
 
-def combine_duplicated_records(records: list) -> dict:
-    """Combine duplicated records
+def group_duplicates_by_original(
+    esims: List[EsimAsset],
+) -> Dict[EsimAsset, List[EsimAsset]]:
+    """Group duplicate esims for each original.
 
     Args:
-        records (list): list of records.
+        esims (List[EsimAsset]): list of esim records.
 
     Returns:
-        dict: combined records {SHA: records}.
+        Dict[EsimAsset, List[EsimAsset]]: combined duplicates.
+            {original: [duplicates]}.
     """
-    combined_records = {}
-    for record in records:
-        if record.qr_sha in combined_records:
-            combined_records[record.qr_sha].append(record)
-        else:
-            combined_records[record.qr_sha] = [record]
-    return combined_records
+    return {
+        esim: [
+            esim_duplicate
+            for esim_duplicate in esims
+            if esim_duplicate.qr_sha == esim.qr_sha
+            and not esim_duplicate.checked_in
+        ]
+        for esim in esims
+        if esim.checked_in
+    }
 
 
-def _update_duplicate_donation_info(
-    original: Attachments, duplicates: list
+def mark_duplicate_donation(
+    original_esim: EsimAsset,
+    esim_duplicates: List[EsimAsset],
 ) -> None:
-    """Update duplicate donation info
+    """flag duplicate donation and link to original.
 
     Args:
-        original (Donations): original attachment record.
-        duplicates (list): list of duplicate attachments.
+        original_esim (EsimAsset): original esim.
+        esim_duplicates (List[EsimAsset]): list of duplicate esims.
     """
-    original_donation = original.donor[0] if original.donor else None
     duplicate_donations = [
-        duplicate.donor[0] for duplicate in duplicates if duplicate.donor
+        duplicate.donation
+        for duplicate in esim_duplicates
+        if duplicate.donation
     ]
     for duplicate_donation in duplicate_donations:
-        duplicate_donation.set_duplicate_error()
-        if original_donation:
-            duplicate_donation.set_original_donor(original_donation)
-            if (
-                not duplicate_donation.email.lower()
-                == original_donation.email.lower()
-            ):
-                duplicate_donation.set_different_email()
-        else:
-            duplicate_donation.set_different_email()
-    Donations.batch_save(duplicate_donations)
-
-
-def delete_duplicate(records: list) -> None:
-    """Delete duplicate records
-
-    Args:
-        records (list): list of records.
-    """
-    # sort records chronologically
-    if dp_c.MEEDAN in records[0].esim_provider[0].name:
-        records.sort(key=lambda record: record.order_id, reverse=True)
-    else:
-        records.sort(key=lambda record: record.order_id, reverse=False)
-    original, duplicates = records[0], records[1:]
-    # delete duplicates
-    Attachments.batch_delete(duplicates)
-    # update donation info
-    _update_duplicate_donation_info(original, duplicates)
+        duplicate_donation.is_duplicate = True
+        duplicate_donation.duplicate_original = original_esim.donation
+    EsimDonation.batch_save(duplicate_donations)
 
 
 def main() -> None:
     """Main"""
-    records = Attachments().fetch_all()
-    logger.info("Duplicate records: %s", len(records))
+    duplicated_esims = EsimAsset().fetch_all()
+    logger.info("Duplicate esims: %s", len(duplicated_esims))
 
-    duplicates = combine_duplicated_records(records)
+    combined_duplicates = group_duplicates_by_original(duplicated_esims)
+    # pylint: disable=expression-not-assigned
+    [
+        mark_duplicate_donation(  # type: ignore[func-returns-value]
+            original,
+            duplicates,
+        )
+        for original, duplicates in combined_duplicates.items()
+    ]
+    list(map(EsimAsset.batch_delete, combined_duplicates.values()))
 
-    list(map(delete_duplicate, duplicates.values()))
-
-    logger.info("Deduplicated records: %s", len(records) - len(duplicates))
+    logger.info(
+        "Deduplicated esims: %s",
+        len(duplicated_esims) - len(combined_duplicates),
+    )
 
 
 # pylint: disable=unused-argument

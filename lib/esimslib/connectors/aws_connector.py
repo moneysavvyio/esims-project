@@ -25,7 +25,12 @@ class S3Connector:
         Returns:
             str: S3 object URL.
         """
-        self.s3.put_object(Bucket=self.bucket, Key=key, Body=data)
+        key = key[1:] if key.startswith(aws_c.SKIP_CHARACHTER) else key
+        self.s3.put_object(
+            Bucket=self.bucket,
+            Key=key,
+            Body=data,
+        )
         logger.info("Data loaded to S3: %s", key)
         return self.s3.generate_presigned_url(
             ClientMethod=aws_c.CLIENT_METHOD,

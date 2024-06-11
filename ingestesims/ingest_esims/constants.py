@@ -15,11 +15,7 @@ class ValidateDonationConst:
 
     # QR Codes Keys
     TYPE = "type"
-    FILENAME = "filename"
     URL = "url"
 
     # Accepted Types
     IMAGE = "image"
-
-    # LPA Server
-    LPA = "LPA:1$"
