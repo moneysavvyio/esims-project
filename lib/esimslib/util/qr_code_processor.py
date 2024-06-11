@@ -16,13 +16,13 @@ import hashlib
 import requests
 import cv2
 import numpy as np
+import pytesseract
 
 from cached_property import cached_property
 from pyzbar.pyzbar import decode, ZBarSymbol
 
 from esimslib.util.logger import logger
 from esimslib.util.constants import QRCodeConst as qr_c
-import pytesseract
 
 
 # pylint: disable=no-member

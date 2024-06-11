@@ -165,12 +165,13 @@ def main() -> None:
         # validate qr codes
         partial_validate_qr_code = partial(validate_qr_asset, esim_package)
         validated_assets = list(map(partial_validate_qr_code, urls))
-        valid_esim_assets = list(filter(None, validated_assets))
-        unique_esim_assets = deduplicate_assets(valid_esim_assets)
-        logger.info("Valid Sims: %s", len(unique_esim_assets))
+        valid_esim_assets = deduplicate_assets(
+            list(filter(None, validated_assets))
+        )
+        logger.info("Valid Sims: %s", len(valid_esim_assets))
 
         # upload to AirTable
-        EsimAsset.load_records(unique_esim_assets)
+        EsimAsset.load_records(valid_esim_assets)
         logger.info("Uploaded to AirTable: %s", esim_package.name)
 
         # delete from Dropbox

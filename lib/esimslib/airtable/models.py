@@ -6,6 +6,7 @@ from typing import List
 
 from pyairtable.utils import attachment
 from pyairtable.orm import Model, fields
+from pyairtable.api.types import AttachmentDict
 
 
 from esimslib.connectors import SSMConnector as ssm
@@ -238,11 +239,11 @@ class EsimAsset(Model):
         self._donation = [value]
 
     @property
-    def qr_code_image(self) -> dict:
+    def qr_code_image(self) -> AttachmentDict:
         """QR Code Attachement dict.
 
         Returns:
-            dict: QR Code Image Info.
+            AttachmentDict: QR Code Image Info.
         """
         return self._qr_code_image[0]
 
@@ -253,7 +254,7 @@ class EsimAsset(Model):
         Args:
             image_url (str): QR Code asset url.
         """
-        self._qr_code_image = [attachment(url=image_url)]
+        self._qr_code_image = [attachment(url=image_url)]  # type: ignore
 
     @classmethod
     def fetch_all(cls) -> List["EsimAsset"]:

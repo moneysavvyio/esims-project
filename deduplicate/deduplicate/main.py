@@ -59,7 +59,10 @@ def main() -> None:
     combined_duplicates = group_duplicates_by_original(duplicated_esims)
     # pylint: disable=expression-not-assigned
     [
-        mark_duplicate_donation(original, duplicates)
+        mark_duplicate_donation(  # type: ignore[func-returns-value]
+            original,
+            duplicates,
+        )
         for original, duplicates in combined_duplicates.items()
     ]
     list(map(EsimAsset.batch_delete, combined_duplicates.values()))
