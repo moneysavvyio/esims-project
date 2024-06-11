@@ -77,7 +77,7 @@ class EsimPackage(Model):
         """Fetch all ID, Names from table.
 
         Returns:
-            list: list of providers records.
+            list: list of packages records.
         """
         return cls.all(view=air_c.DEFAULT_VIEW)
 
@@ -113,7 +113,6 @@ class EsimDonation(Model):
     is_of_provider_mismatch = fields.CheckboxField(don_c.PROVIDER_MISMATCH)
     is_not_esim = fields.CheckboxField(don_c.PROTOCOL_MISMATCH)
     is_missing_phone = fields.CheckboxField(don_c.MISSING_PHONE_NUMBER)
-    email = fields.TextField(don_c.CLEAN_EMAIL, readonly=True)
     is_duplicate = fields.CheckboxField(don_c.IS_DUPLICATE)
     _duplicate_original = fields.LinkField(
         don_c.ORIGINAL_DONATION, "EsimDonation"
@@ -188,7 +187,6 @@ class EsimDonation(Model):
 class EsimAsset(Model):
     """eSIM Inventory Model"""
 
-    order_id = fields.AutoNumberField(esim_c.ORDER_ID, readonly=True)
     _esim_package = fields.LinkField(esim_c.ESIM_PACKAGE, EsimPackage)
     _qr_code_image = fields.AttachmentsField(esim_c.QR_CODE)
     qr_sha = fields.TextField(esim_c.QR_SHA)

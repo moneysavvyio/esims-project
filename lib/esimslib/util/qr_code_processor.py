@@ -38,6 +38,7 @@ class QRCodeProcessor:
             url (str): Image URL to detect QR Code.
         """
         self.url = url
+        self._qr_sha: str = ""
         self._qr_code: str = ""
         self._phone_number: str = ""
 
@@ -58,7 +59,16 @@ class QRCodeProcessor:
             value (bytes): QR Code info in bytes
         """
         self._qr_code = value.decode(qr_c.UTF8)
-        self.qr_sha = hashlib.sha256(value).hexdigest()
+        self._qr_sha = hashlib.sha256(value).hexdigest()
+
+    @property
+    def qr_sha(self) -> str:
+        """QR SHA
+
+        Returns:
+            str: QR SHA
+        """
+        return self._qr_sha
 
     @property
     def phone_number(self) -> str:

@@ -15,7 +15,8 @@ def group_duplicates_by_original(
         esims (List[EsimAsset]): list of esim records.
 
     Returns:
-        Dict[EsimAsset, List[EsimAsset]]: combined duplicates {qr_sha: esims}.
+        Dict[EsimAsset, List[EsimAsset]]: combined duplicates.
+            {original: [duplicates]}.
     """
     return {
         esim: [
@@ -37,7 +38,7 @@ def mark_duplicate_donation(
 
     Args:
         original_esim (EsimAsset): original esim.
-        esim_duplicates (List[EsimAsset]): list of duplicate attachments.
+        esim_duplicates (List[EsimAsset]): list of duplicate esims.
     """
     duplicate_donations = [
         duplicate.donation
@@ -45,9 +46,8 @@ def mark_duplicate_donation(
         if duplicate.donation
     ]
     for duplicate_donation in duplicate_donations:
-        if duplicate_donation != original_esim.donation:
-            duplicate_donation.is_duplicate = True
-            duplicate_donation.duplicate_original = original_esim.donation
+        duplicate_donation.is_duplicate = True
+        duplicate_donation.duplicate_original = original_esim.donation
     EsimDonation.batch_save(duplicate_donations)
 
 

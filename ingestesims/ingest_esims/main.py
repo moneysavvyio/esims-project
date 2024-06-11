@@ -15,7 +15,7 @@ def validate_donation(donation_record: EsimDonation) -> List[EsimAsset]:
         donation_record (EsimDonation): EsimDonation record.
 
     Returns:
-        List[EsimAsset] | None: Validated eSIMs if any.
+        List[EsimAsset]: Validated eSIMs.
     """
     validator = ValidateDonation(donation_record)
     validator.validate_attachments_type()
