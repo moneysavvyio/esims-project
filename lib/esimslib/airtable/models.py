@@ -191,7 +191,7 @@ class EsimAsset(Model):
     _qr_code_image = fields.AttachmentsField(esim_c.QR_CODE)
     qr_sha = fields.TextField(esim_c.QR_SHA)
     _donation = fields.LinkField(esim_c.DONATION, EsimDonation)
-    phone_number = fields.PhoneNumberField(esim_c.PHONE_NUMBER)
+    phone_number = fields.TextField(esim_c.PHONE_NUMBER)
     checked_in = fields.CheckboxField(esim_c.CHECKED_IN, readonly=True)
 
     @property
