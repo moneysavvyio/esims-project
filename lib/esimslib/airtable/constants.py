@@ -50,9 +50,9 @@ class EsimAssetConst:
     # Field Names
     ESIM_PACKAGE = "eSIM Package"
     QR_CODE = "QR Code"
-    QR_SHA = "QR SHA"
+    QR_SHA = "qr_sha"
     DONATION = "Donation Record"
-    PHONE_NUMBER = "eSIM Phone Number"
+    PHONE_NUMBER = "esim_phone_number"
     CHECKED_IN = "checked_in"
 
 
