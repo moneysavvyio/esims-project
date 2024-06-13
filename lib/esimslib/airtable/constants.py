@@ -52,7 +52,7 @@ class EsimAssetConst:
     QR_CODE = "QR Code"
     QR_SHA = "qr_sha"
     DONATION = "Donation Record"
-    PHONE_NUMBER = "esim_phone_number"
+    PHONE_NUMBER = "eSIM Phone Number"
     CHECKED_IN = "checked_in"
 
 
