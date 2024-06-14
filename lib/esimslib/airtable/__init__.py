@@ -1,9 +1,8 @@
 """AirTable Models Module"""
 
 from esimslib.airtable.models import (
-    Providers,
-    Attachments,
-    Donations,
-    Inventory,
+    EsimProvider,
+    EsimPackage,
+    EsimDonation,
+    EsimAsset,
 )
-from esimslib.airtable.constants import DonationsModelConst

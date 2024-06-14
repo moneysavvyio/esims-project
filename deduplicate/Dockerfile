@@ -12,7 +12,8 @@ WORKDIR ${LAMBDA_TASK_ROOT}/deduplicate
 RUN yum -y update \
     && yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
     && yum makecache \
-    && yum -y install zbar
+    && yum -y install zbar \
+    && yum -y install tesseract
 
 # Install requirements
 RUN python3 -m pip install --upgrade pip

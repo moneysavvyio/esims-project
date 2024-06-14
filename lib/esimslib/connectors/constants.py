@@ -24,6 +24,7 @@ class AWSConst:
     CLIENT_METHOD = "get_object"
     BUCKET = "Bucket"
     KEY = "Key"
+    SKIP_CHARACHTER = "/"
 
     # SSM
     PARAMETER = "Parameter"
