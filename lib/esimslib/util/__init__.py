@@ -1,9 +1,5 @@
 """Util Module"""
 
 from esimslib.util.logger import logger
-<<<<<<< HEAD
-from esimslib.util.qr_code_detector import QRCodeDetector
 from esimslib.util.image_captioner import ImageWithCaption
-=======
 from esimslib.util.qr_code_processor import QRCodeProcessor
->>>>>>> main
