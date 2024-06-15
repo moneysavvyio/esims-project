@@ -7,7 +7,7 @@ from io import BytesIO
 from esimslib.util import logger
 
 class ImageWithCaption:
-    def __init__(self, image_url, title, text_line_1, text_line_2, text_line_3, text_line_4):
+    def __init__(self, image_url: str, title: str, text_line_1: str, text_line_2: str, text_line_3: str, text_line_4: str) -> None:
         self.image_url = image_url
         self.title = title
         self.text_line_1 = text_line_1
@@ -16,7 +16,7 @@ class ImageWithCaption:
         self.text_line_4 = text_line_4
         self.image_bytes = None
 
-    def create_image(self):
+    def create_image(self) -> BytesIO:
         """
         Creates the image with captions and returns image bytes
         """

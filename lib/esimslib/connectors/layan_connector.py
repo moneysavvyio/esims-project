@@ -9,7 +9,7 @@ from datetime import datetime
 from esimslib.connectors.aws_connector import SSMConnector as ssm
 from esimslib.util import logger
 
-from constants import LayanTConst as layan_constants
+from esimslib.connectors.constants import LayanTConst as layan_constants
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class InvalidCredentialsError(Exception):
@@ -119,7 +119,7 @@ class LayanConnector:
         response.raise_for_status()
         return response
 
-    def _get_available_numbers(self, package_id) -> Any:
+    def _get_available_numbers(self, package_id: str) -> Any:
         """
          Response is a list of objects (up to 5) like {"id": "3b5a9310-5d6c-4290-0009-08dc644141f7", "phoneNumber": "0512792828", "isActive": true}
         """
@@ -182,7 +182,7 @@ class LayanConnector:
             package_price = layan_constants.HOT_PACKAGE_PRICE
         else:
             logger.error("Invalid package id")
-            return 
+            raise
 
         try:
             esim = self._get_empty_esim(package_id, phone_number)
@@ -202,6 +202,7 @@ class LayanConnector:
         
         except Exception as e:
             logger.error(f'Error issuing eSIM from number: {e}')
+            raise
 
     def concurrently_issue_five_esims(self, package_id: str) -> List[Dict[str, str]]:
         """
