@@ -11,8 +11,9 @@ from esimslib.airtable import EsimPackage, EsimAsset
 from esimslib.connectors import (
     DropboxConnector,
     S3Connector,
-    SSMConnector,
+    SSMConnector
 )
+
 from esims_router.constants import RouterConst as r_c
 
 
@@ -130,6 +131,8 @@ def deduplicate_assets(assets: List[EsimAsset]) -> List[EsimAsset]:
     return unique_esims
 
 
+
+
 def main() -> None:
     """Main Service Driver."""
     logger.info("Starting e-sims transport service")
@@ -155,11 +158,12 @@ def main() -> None:
         objects = [dbx_connector.get_file(path) for path in valid_types_list]
         logger.info("Fetched Sims: %s", len(objects))
 
-        # load objects to S3
+        # load dropbox objects to the S3 bucket
         urls = [
             s3_connector.load_data(obj, key)
             for obj, key in zip(objects, valid_types_list)
         ]
+
         logger.info("S3 Loaded Sims: %s", len(urls))
 
         # validate qr codes

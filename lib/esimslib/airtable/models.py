@@ -36,6 +36,9 @@ class EsimProvider(Model):
         prov_c.AUTOMATIC_RESTOCK, readonly=True
     )
     renewable = fields.CheckboxField(prov_c.RENEWABLE, readonly=True)
+    # TODO: verify that the field type is str, I am assuming it is the Package name.
+    # reference: https://pyairtable.readthedocs.io/en/stable/orm.html#formulas-rollups-and-lookups
+    packages = fields.LookupField[str](prov_c.PACKAGES, readonly=True)
 
     @classmethod
     def fetch_all(cls) -> List["EsimProvider"]:
