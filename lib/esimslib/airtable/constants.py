@@ -29,6 +29,7 @@ class EsimProviderConst:
     SMDP_DOMAIN = "smdp_domain"
     AUTOMATIC_RESTOCK = "Automatic Restock"
     RENEWABLE = "Renewable"
+    PACKAGES = "eSIM Packages"
 
 
 class EsimPackageConst:

@@ -14,9 +14,6 @@ from esimslib.connectors import (
     SSMConnector
 )
 
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
 from esims_router.constants import RouterConst as r_c
 
 
@@ -162,12 +159,12 @@ def main() -> None:
         logger.info("Fetched Sims: %s", len(objects))
 
         # load dropbox objects to the S3 bucket
-        dropbox_esim_urls = [
+        urls = [
             s3_connector.load_data(obj, key)
             for obj, key in zip(objects, valid_types_list)
         ]
 
-        logger.info("S3 Loaded Sims: %s", len(dropbox_esim_urls))
+        logger.info("S3 Loaded Sims: %s", len(urls))
 
         # validate qr codes
         partial_validate_qr_code = partial(validate_qr_asset, esim_package)

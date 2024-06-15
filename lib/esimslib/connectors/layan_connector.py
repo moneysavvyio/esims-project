@@ -7,10 +7,14 @@ import jwt
 from datetime import datetime
 
 from esimslib.connectors.aws_connector import SSMConnector as ssm
+from esimslib.util import logger
 
 from constants import LayanTConst as layan_constants
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+class InvalidCredentialsError(Exception):
+    """Custom exception for invalid username/password errors."""
+    pass
 
 class LayanConnector:
     """Layan-T Connector to run Layan-T Tasks"""
@@ -36,7 +40,7 @@ class LayanConnector:
 
 
     def _get_token(self) -> str:
-        token: Optional[str] = self._read_token_from_env()
+        token: Optional[str] = self._read_token_from_ssm()
         
         if not token or self._is_token_invalid(token):
             token = self._refresh_token()
@@ -47,15 +51,14 @@ class LayanConnector:
         try:
             return ssm().get_parameter(os.getenv(layan_constants.LAYANT_TOKEN))
         except Exception as e:
-            print(f'Error reading the token from file: {e}')
+            logger.error(f'Error reading the token from file: {e}')
             return None
-    def _save_token_to_env(self, token: str) -> None:
+    def _save_token_to_ssm(self, token: str) -> None:
         try:
             ssm.update_parameter(os.getenv(layan_constants.LAYANT_TOKEN), token, True)
         except Exception as e:
-            print(f'Error saving the token to file: {e}')
+            logger.error(f'Error saving the token to file: {e}')
 
-    # TODO: Handle the case where the username/password combination is incorrect
     def _refresh_token(self) -> str:
         try:
 
@@ -70,11 +73,18 @@ class LayanConnector:
             )
             response.raise_for_status()
             token = response.json().get('data').get('jwt')
-            self._save_token_to_env(token)
+            self._save_token_to_ssm(token)
             return token
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 400:
+                logger.error("Alarm: Username or password may be incorrect.")
+                raise InvalidCredentialsError("Invalid username or password.")
+            else:
+                logger.error(f'Error refreshing the token: {e}')
+                raise
         except Exception as e:
-            print(f'Error refreshing the token: {e}')
-            return ""
+            logger.error(f'Error refreshing the token: {e}')
+            raise
 
     def _is_token_invalid(self, token: str) -> bool:
         try:
@@ -84,14 +94,17 @@ class LayanConnector:
                 return False
             return True
         except Exception as e:
-            print(f'Error decoding the token: {e}')
+            logger.error(f'Error decoding the token: {e}')
             return True
 
     def _ensure_token_valid(self) -> None:
-        if self._is_token_invalid(self._token):
-            self._token = self._refresh_token()
-            self._headers['Authorization'] = f'Bearer {self._token}'
-
+        try:
+            if self._is_token_invalid(self._token):
+                self._token = self._refresh_token()
+                self._headers['Authorization'] = f'Bearer {self._token}'
+        except InvalidCredentialsError:
+            logger.error("Terminating token refresh loop due to invalid credentials.")
+    
     def _get_request(self, endpoint: str) -> requests.Response:
         self._ensure_token_valid()
         url: str = f'{self._base_url}{endpoint}'
@@ -168,7 +181,7 @@ class LayanConnector:
         elif package_id == layan_constants.HOT_PACKAGE_ID:
             package_price = layan_constants.HOT_PACKAGE_PRICE
         else:
-            print("Invalid package id")
+            logger.error("Invalid package id")
             return 
 
         try:
@@ -188,7 +201,7 @@ class LayanConnector:
             }
         
         except Exception as e:
-            print(f'Error issuing eSIM from number: {e}')
+            logger.error(f'Error issuing eSIM from number: {e}')
 
     def concurrently_issue_five_esims(self, package_id: str) -> List[Dict[str, str]]:
         """
@@ -197,9 +210,6 @@ class LayanConnector:
         """
         try:            
             available_numbers = self._get_available_numbers(package_id)
-    
-            print("Available numbers:")
-            print(available_numbers)
 
             issued_esims = []
             with ThreadPoolExecutor(max_workers=5) as executor:
@@ -210,19 +220,19 @@ class LayanConnector:
                         if result:
                             issued_esims.append(result)
                     except Exception as e:
-                        print(f'Failed to issue SIM card for {futures[future]}: {e}')
+                        logger.error(f'Failed to issue SIM card for {futures[future]}: {e}')
             
             return issued_esims
         
         except requests.exceptions.RequestException as e:
-            print(f'Error in concurrent issuing of esims during the API call: {e}')
+            logger.error(f'Error in concurrent issuing of esims during the API call: {e}')
             raise
         except Exception as e:
-            print(f'Unexpected error in concurrent issuing of esims: {e}')
+            logger.error(f'Unexpected error in concurrent issuing of esims: {e}')
             raise
     
         
-    def batch_issue_esims(self, package_name: str,  target_count: int) -> List[Dict[str, str]]:
+    def batch_issue_esims(self, provider_name: str,  target_count: int) -> List[Dict[str, str]]:
         """
         Issue a batch of new eSIMs that is at least as big as the given target_count.
         Batches issuances are requested in multiples of 5 at a time 
@@ -231,19 +241,19 @@ class LayanConnector:
 
 
         Args:
-            package_name (str): Name of the restockable package (currently supports WeCom_500GB_30Days_Israel and HotMobile_110GB_30Days_Israel)
+            provider_name (str): Name of the restockable provider (currently supports WeCom and HotMobile)
 
         Returns:
             List[Dict[str, str]]: eSIM objects in the form of {"qr_code": URL, "phone_number": NUMBER}
         """
         
         package_id = ""
-        if package_name == "WeCom_500GB_30Days_Israel":
+        if provider_name == "WeCom":
             package_id = layan_constants.WE_PACKAGE_ID
-        elif package_name == "HotMobile_110GB_30Days_Israel":
+        elif provider_name == "HotMobile":
             package_id = layan_constants.HOT_PACKAGE_ID
         else:
-            print("Invalid package name")
+            logger.error("Invalid provider name")
             return []
 
         issued_sim_cards = []
@@ -261,9 +271,9 @@ class LayanConnector:
                 consecutive_failures += 1
 
             # Step 3: Check for consecutive restocking failures
-            # TODO: Use a better alerting mechanism. What is the preferred alerting framework for this condition? Preferably something that can send in Slack/Mail
+            # TODO: Use a better alerting mechanism.
             if consecutive_failures >= 3:
-                print("Alarm: Three consecutive failures of issuing SIM cards.")
+                logger.error("Alarm: Three consecutive failures of issuing SIM cards.")
                 break
 
         return issued_sim_cards

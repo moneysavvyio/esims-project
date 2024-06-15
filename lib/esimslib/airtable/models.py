@@ -36,6 +36,9 @@ class EsimProvider(Model):
         prov_c.AUTOMATIC_RESTOCK, readonly=True
     )
     renewable = fields.CheckboxField(prov_c.RENEWABLE, readonly=True)
+    # TODO: verify that the field type is str, I am assuming it is the Package name.
+    # reference: https://pyairtable.readthedocs.io/en/stable/orm.html#formulas-rollups-and-lookups
+    packages = fields.LookupField[str](prov_c.PACKAGES, readonly=True)
 
     @classmethod
     def fetch_all(cls) -> List["EsimProvider"]:
@@ -290,55 +293,6 @@ class EsimAsset(Model):
     class Meta:
         """Config subClass"""
 
-        table_name = att_c.TABLE_NAME
-        base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
-        api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))
-
-
-class Inventory(Model):
-    """Inventory Check Model"""
-
-    provider_geo = fields.TextField(inv_c.PROVIDER_GEO)
-    provider = fields.SelectField(inv_c.PROVIDER)
-    geo = fields.SelectField(inv_c.GEO)
-    low_flag = fields.CheckboxField(inv_c.LOW_FLAG)
-    in_stock = fields.CountField(inv_c.IN_STOCK)
-    automatic_restock_flag = fields.CheckboxField(inv_c.AUTOMATIC_RESTOCK)
-
-    @classmethod
-    def fetch_all(cls) -> list:
-        """Fetch all ID, Names from table.
-
-        Returns:
-            list: list of providers records.
-        """
-        return cls.all(view=air_c.DEFAULT_VIEW)
-
-    @classmethod
-    # TODO: Add the return type of this function. What is it? Model?
-    def wecom_inventory(cls):
-        """Check wecom inventory.
-
-        Returns:
-            wecom inventory object
-        """
-        wecom = cls.from_id(inv_c.WECOM_ID)
-        return wecom
-    
-    @classmethod
-    # TODO: Add the return type of this function. What is it? Model?
-    def hotmobile_inventory(cls):
-        """Check hotmobile inventory.
-
-        Returns:
-            hotmobile inventory object
-        """
-        hot = cls.from_id(inv_c.HOTMOBILE_ID)
-        return hot
-    class Meta:
-        """Config subClass"""
-
-        table_name = inv_c.TABLE_NAME
         table_name = esim_c.TABLE_NAME
         base_id = os.getenv(air_c.AIRTABLE_BASE_ID)
         api_key = ssm().get_parameter(os.getenv(air_c.AIRTABLE_API_KEY))

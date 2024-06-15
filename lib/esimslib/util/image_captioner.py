@@ -4,16 +4,21 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
 
+from esimslib.util import logger
+
 class ImageWithCaption:
-    def __init__(self, image_url, title, text_line_1, text_line_2):
+    def __init__(self, image_url, title, text_line_1, text_line_2, text_line_3, text_line_4):
         self.image_url = image_url
         self.title = title
         self.text_line_1 = text_line_1
         self.text_line_2 = text_line_2
+        self.text_line_3 = text_line_3
+        self.text_line_4 = text_line_4
+        self.image_bytes = None
 
     def create_image(self):
         """
-        Creates the image with captions and returns a BytesIO object of the captioned image
+        Creates the image with captions and returns image bytes
         """
         # Load the image from the URL
         response = requests.get(self.image_url)
@@ -22,8 +27,8 @@ class ImageWithCaption:
         # Define the dimensions and margins
         image_width, image_height = image.size
         margin_top = 40
-        margin_bottom = 110
-        margin_side = 100
+        margin_bottom = 138
+        margin_side = 124
         canvas_width = image_width + margin_side
         canvas_height = image_height + margin_top + margin_bottom
 
@@ -37,11 +42,11 @@ class ImageWithCaption:
         draw = ImageDraw.Draw(final_image)
 
         # Load a font that supports Arabic characters
+        # TODO: ensure the font is in the correct location this will fail
         try:
-            # TODO: Make sure the font file is placed correctly or find a different place to host it
             font = ImageFont.truetype("Noto_Naskh_Arabic/NotoNaskhArabic-VariableFont_wght.ttf", 22)
         except IOError:
-            print("Font file not found. Please make sure 'layant_connector/Noto_Naskh_Arabic/NotoNaskhArabic-VariableFont_wght.ttf' is in the working directory.")
+            logger.error("Font file not found. Please make sure 'esimissuer/Noto_Naskh_Arabic/NotoNaskhArabic-VariableFont_wght.ttf' is in the working directory.")
             return
 
         # Draw the title text on top
@@ -62,6 +67,9 @@ class ImageWithCaption:
         draw.text((canvas_width // 2, text_y_position), self.text_line_3, fill='black', font=font, anchor="mm")
         text_y_position += line_spacing
 
+        draw.text((canvas_width // 2, text_y_position), self.text_line_4, fill='black', font=font, anchor="mm")
+        text_y_position += line_spacing
+
         # Save the final image to a bytes object
         image_bytes = BytesIO()
         final_image.save(image_bytes, format='PNG')
@@ -69,4 +77,3 @@ class ImageWithCaption:
 
         self.image_bytes = image_bytes
         return image_bytes
-    
