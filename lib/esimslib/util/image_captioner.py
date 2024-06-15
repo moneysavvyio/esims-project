@@ -47,7 +47,7 @@ class ImageWithCaption:
             font = ImageFont.truetype("Noto_Naskh_Arabic/NotoNaskhArabic-VariableFont_wght.ttf", 22)
         except IOError:
             logger.error("Font file not found. Please make sure 'esimissuer/Noto_Naskh_Arabic/NotoNaskhArabic-VariableFont_wght.ttf' is in the working directory.")
-            return
+            raise
 
         # Draw the title text on top
         title_y_position = margin_top - 15

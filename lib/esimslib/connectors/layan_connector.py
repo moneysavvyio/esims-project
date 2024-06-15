@@ -21,16 +21,8 @@ class LayanConnector:
 
     def __init__(self, username: str = None, password: str = None):
         self._base_url: str = layan_constants.API_URL
-        if username:
-            self._username = username
-        else:
-            self._username: str = ssm().get_parameter(os.getenv(layan_constants.LAYANT_USERNAME))
-       
-        if password:
-            self._password = password
-        else:
-            self._password: str = ssm().get_parameter(os.getenv(layan_constants.LAYANT_PASSWORD))
-        
+        self._username: str = username if username else ssm().get_parameter(os.getenv(layan_constants.LAYANT_USERNAME))
+        self._password: str = password if password else ssm().get_parameter(os.getenv(layan_constants.LAYANT_PASSWORD))
         self._token: str = self._get_token()
         self._headers: Dict[str, str] = {
             'Authorization': f'Bearer {self._token}',
